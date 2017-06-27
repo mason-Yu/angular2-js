@@ -1,0 +1,4 @@
+This http-proxy-tool uses code from https://github.com/mitre/HTTP-Proxy-Servlet
+It contains a pre-built version of Smiley's HTTP Proxy Servlet in plugins/http-proxy-servlet.jar,
+the MANIFEST.MF has been modified to be able to deploy it on Virgo.
+See README.md for details.

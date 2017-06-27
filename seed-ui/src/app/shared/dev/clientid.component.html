@@ -1,0 +1,15 @@
+<clr-modal [(clrModalOpen)]="modalOpened">
+   <h3 class="modal-title">Client Id Setup</h3>
+   <div class="modal-body">
+      <p *ngIf="gs.isPluginMode()">Copy the client id value below, then paste it in the standalone app.</p>
+      <p *ngIf="!gs.isPluginMode()">Run the plugin in
+         <a href="{{settingViewUrl}}" target="_blank">vSphere Client</a>
+         , get the client id and paste its value here:</p>
+      <input type="text" id="clientId" size="35"
+             [(ngModel)]="clientId" name="clientId" #name="ngModel">
+   </div>
+   <div class="modal-footer">
+      <button *ngIf="!gs.isPluginMode()" type="button" class="btn" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" (click)="onSubmit()">Ok</button>
+   </div>
+</clr-modal>

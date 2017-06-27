@@ -1,0 +1,93 @@
+<project name="build-plugin-package" default="build" >
+   <description>
+      - When called without argument this script builds a standard plugin package folder,
+        using __projectName-ui__ and __projectName-service__, with this structure:
+
+             __pluginName__
+                  plugin-package.xml
+                  /plugins
+                     gson-2.3.1.jar
+                     __projectName-ui__.war
+                     __projectName-service__.jar
+
+      - When called with "-DuseHttpProxy" the plugin package is built using the http-proxy-servle,
+        i.e. __projectName-service__.jar is replaced by http-proxy-servlet.jar.
+
+      - When called with "-DnoJava" the plugin package is build without any java service.
+   </description>
+
+   <property environment="env"/>
+   <property name="VSPHERE_SDK_HOME" value="${env.VSPHERE_SDK_HOME}"/>
+   <property name="BUILD_DIR" value="${basedir}/../target"/>
+   <property name="SERVICE_DIR" value="${basedir}/../../__projectName-service__"/>
+
+   <!-- Conditional build variables -->
+   <property name="USE_HTTP_PROXY" value="${useHttpProxy}"/>
+   <property name="NO_JAVA" value="${noJava}"/>
+
+   <target name="build" depends="buildCheck, buildUiWar, buildServiceJar, createPluginPackageDir,
+         createPluginProxyPackageDir, createPluginNoJavaPackageDir, copyPluginPackageDir">
+      <echo level="info">*** You must restart the Virgo server to use the new plugin package! ***</echo>
+   </target>
+
+   <target name="buildCheck">
+      <condition property="NORMAL_BUILD">
+         <and>
+            <isfalse value="${USE_HTTP_PROXY}"/>
+            <isfalse value="${NO_JAVA}"/>
+         </and>
+      </condition>
+   </target>
+
+   <target name="buildUiWar">
+      <ant antfile="${basedir}/build-war.xml" dir="${basedir}" inheritAll="true"/>
+   </target>
+
+   <target name="buildServiceJar" if="${NORMAL_BUILD}">
+      <ant antfile="${SERVICE_DIR}/tools/build-java.xml" dir="${SERVICE_DIR}/tools" inheritAll="false"/>
+   </target>
+
+   <target name="createPluginPackageDir" if="${NORMAL_BUILD}">
+      <mkdir dir="${BUILD_DIR}/__pluginName__" />
+      <mkdir dir="${BUILD_DIR}/__pluginName__/plugins" />
+      <copy todir="${BUILD_DIR}/__pluginName__" file="./plugin-package.xml"/>
+      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${BUILD_DIR}/__projectName-ui__.war"/>
+      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${SERVICE_DIR}/target/__projectName-service__.jar"/>
+      <!-- gson-2.3.1.jar is a 3rd party lib used by the service bundle -->
+      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${VSPHERE_SDK_HOME}/libs/gson-2.3.1.jar"/>
+   </target>
+
+   <target name="createPluginProxyPackageDir" if="${USE_HTTP_PROXY}"
+           depends="http-proxy-servlet-check, http-proxy-servlet-warn">
+      <mkdir dir="${BUILD_DIR}/__pluginName__" />
+      <mkdir dir="${BUILD_DIR}/__pluginName__/plugins" />
+      <copy tofile="${BUILD_DIR}/__pluginName__/plugin-package.xml" file="./plugin-proxy-package.xml"/>
+      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${BUILD_DIR}/__projectName-ui__.war"/>
+      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${basedir}/../tools/http-proxy-servlet.jar"/>
+   </target>
+
+   <target name="http-proxy-servlet-check" if="${USE_HTTP_PROXY}">
+      <available file="http-proxy-servlet.jar"  property="http-proxy-servlet.found"/>
+   </target>
+
+   <target name="http-proxy-servlet-warn"  if="${USE_HTTP_PROXY}" unless="${http-proxy-servlet.found}">
+      <fail message="MISSING http-proxy-servlet.jar IN /tools!
+      ${line.separator}=> COPY http-proxy-servlet.jar FROM plugin-seed/tools/http-proxy-tool/http-proxy-tool-plugin/plugins
+TO THIS /tools FOLDER."/>
+   </target>
+
+   <target name="createPluginNoJavaPackageDir" if="${NO_JAVA}">
+      <mkdir dir="${BUILD_DIR}/__pluginName__" />
+      <mkdir dir="${BUILD_DIR}/__pluginName__/plugins" />
+      <copy tofile="${BUILD_DIR}/__pluginName__/plugin-package.xml" file="./plugin-nojava-package.xml"/>
+      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${BUILD_DIR}/__projectName-ui__.war"/>
+   </target>
+
+   <target name="copyPluginPackageDir">
+      <delete dir="${VSPHERE_SDK_HOME}/vsphere-ui/plugin-packages/__pluginName__" quiet="true"/>
+      <copy todir="${VSPHERE_SDK_HOME}/vsphere-ui/plugin-packages/__pluginName__">
+         <fileset dir="${BUILD_DIR}/__pluginName__"/>
+      </copy>
+   </target>
+
+</project>

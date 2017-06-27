@@ -1,0 +1,82 @@
+
+
+
+{ "app.name": "__pluginName__",
+"app.mainView": "__pluginName__ Main View",
+"app.settingView": "__pluginName__ Settings View",
+"settings": "Settings",
+
+"sampleAction1.name": "Action1 - dialog",
+"sampleAction2.name": "Action2 - wizard",
+"sampleAction3.name": "Action3 - headless",
+"sampleMenu.label": "__pluginName__ Actions",
+
+
+
+"button.ok": "Ok",
+"button.cancel": "Cancel",
+
+"mainView.serviceTest": "Service Test",
+"mainView.clickToCall": "Click to call the EchoService",
+"mainView.helloBtn1": "Hello (popup)",
+"mainView.helloBtn2": "Hello (modal)",
+"mainView.world": "World!",
+"mainView.echoResponse": "Echo Response",
+"mainView.popup1.text": "(This popup is modal only with the plugin view)",
+"mainView.popup2.text": "(This popup is modal for the whole vSphere Client)",
+"mainView.content": "Add your main view content here.",
+"settingsView.content": "Add your settings content here.",
+
+"gotoSettings": "Go to Settings",
+"gotoMainView": "Go to Main View",
+"gotoSummary": "Go to Summary",
+"gotoMonitor": "Go to Monitor",
+"gotoConfigure": "Go to Configure",
+
+"monitorView": "__pluginName__ Monitor view for {0}",
+"manageView": "__pluginName__ Configure view for {0}",
+"summaryView": "__pluginName__ Summary portlet",
+"summaryView.content": "Add content for host id: {0}",
+
+"host.name": "Name",
+"host.status": "Status",
+"host.model": "Model",
+"host.vms": "Virtual Machines",
+
+
+"chassisLabel": "Chassis",
+"chassisPlural": "Chassis",
+"chassis.monitor.view1": "Monitor view 1",
+"chassis.manage.view1": "Configure view 1",
+
+"addDetails": "Add content...",
+"summary.title": "{0} Summary",
+"summary.mainInfo": "{0} Main Info",
+"summary.name": "Name: {0}",
+"summary.dimensions": "Dimensions: {0}",
+"summary.serverType": "Server type: {0}",
+"summary.health": "Health",
+"summary.compliance": "Compliance",
+"edit.chassis": "Edit {0}",
+"useLeftMenu": "Use left menu on each row to edit or delete a chassis",
+"header.name": "Name",
+"header.dimensions": "Dimensions",
+"header.serverType": "Server type",
+"menu.goto": "Go to",
+"menu.edit": "Edit",
+"menu.delete": "Delete",
+"config.portlet": "Config Portlet",
+"monitor.portlet": "Monitor Portlet",
+
+"chassis.deleteAction": "Remove Chassis",
+"chassis.editAction": "Edit Chassis",
+"chassis.createAction": "Add a Chassis",
+"createAction.nameTaken": "A chassis named {0} already exists!",
+"editAction.notFound": "Update failed, the chassis was not found on the server.",
+"deleteAction.notFound": "The chassis was not found on the server.",
+
+
+
+"addIcon": "Embed(\"../../assets/images/addIcon.png\")",
+"editIcon": "Embed(\"../../assets/images/editIcon.png\")",
+"removeIcon": "Embed(\"../../assets/images/removeIcon.png\")" }

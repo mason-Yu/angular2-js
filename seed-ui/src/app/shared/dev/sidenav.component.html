@@ -1,0 +1,31 @@
+<!-- Sidenav component used to mock the Client's navigator, not visible in plugin mode -->
+<nav class="sidenav">
+   <section class="sidenav-content">
+      <!-- List of hosts -->
+      <section class="nav-group collapsible">
+         <input #hostsInput id="Hosts" type="checkbox" (click)="saveSetting($event)">
+         <label for="Hosts">Hosts</label>
+         <ul class="nav-list">
+            <li *ngFor="let host of hosts; let idx = index">
+               <a class="nav-link" (click)="selectHost(host.id, idx)" [class.active]="idx === selectedHost">
+                  <clr-icon shape="host" size="24"></clr-icon>{{host.name}}</a>
+            </li>
+         </ul>
+      </section>
+
+      <!-- List of chassis [removable-chassis-code] -->
+      <section class="nav-group collapsible">
+         <input #chassisInput id="Chassis" type="checkbox" (click)="saveSetting($event)">
+         <label for="Chassis">Chassis</label>
+         <ul class="nav-list">
+            <li *ngFor="let chassis of chassisList; let idx = index">
+               <a class="nav-link" (click)="selectChassis(chassis.id, idx)" [class.active]="idx === selectedChassis">
+                  <!-- using view-list icon because I couldn't find anything better for a chassis :-) -->
+                  <clr-icon shape="view-list" size="20"></clr-icon> {{chassis.name}}</a>
+            </li>
+         </ul>
+      </section>
+      <!-- [end-chassis-code] -->
+
+   </section>
+</nav>

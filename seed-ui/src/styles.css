@@ -1,0 +1,10 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Overide 2 styles in order to adjust wizard (size lg) inside the plugin dialog */
+.modal {
+    padding: 0px;
+}
+
+.clr-wizard.wizard-lg .content-container {
+    height: 576px;
+}

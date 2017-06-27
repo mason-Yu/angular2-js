@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Export-Package: org.mitre.dsmiley.httpproxy;version="1.8.0";uses:="jav
+ ax.servlet,javax.servlet.http,org.apache.http,org.apache.http.client,
+ org.apache.http.params"
+Built-By: dsmiley
+Tool: Bundlor 1.0.0.M6
+Bundle-Name: http-proxy-servlet
+Created-By: Apache Maven 3.3.3
+Bundle-Vendor: Smiley
+Bundle-Version: 1.8.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.mitre.dsmiley.httpproxy
+Import-Package: javax.servlet,javax.servlet.http,org.apache.http,org.a
+ pache.http.client,org.apache.http.client.methods,org.apache.http.clie
+ nt.utils,org.apache.http.conn,org.apache.http.entity,org.apache.http.
+ impl.client,org.apache.http.impl.conn.tsccm,org.apache.http.message,o
+ rg.apache.http.params,org.apache.http.util
+Archiver-Version: Plexus Archiver
+

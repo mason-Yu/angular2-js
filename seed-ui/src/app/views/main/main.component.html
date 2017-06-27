@@ -1,0 +1,138 @@
+<app-alert></app-alert>
+
+<!-- Dev mode header -->
+<app-header *ngIf="gs.showDevUI()" ></app-header>
+
+<!-- ---------------------------- Main view content -------------------------------- -->
+
+<div class="main-container">
+
+   <div class="content-container">
+      <clr-tabs style="width: 100%" (clrTabsCurrentTabLinkChanged)="onTabSelected($event)">
+         <clr-tab-link [clrTabLinkId]="'homeTab'" [clrTabLinkActive]="isActiveTab('homeTab')" style="padding-left: 10px;">
+            Home</clr-tab-link>
+         <clr-tab-link [clrTabLinkId]="'echoTab'" [clrTabLinkActive]="isActiveTab('echoTab')">
+            Echo Service</clr-tab-link>
+         <!-- [removable-chassis-code] -->
+         <clr-tab-link [clrTabLinkId]="'chassisTab'" [clrTabLinkActive]="isActiveTab('chassisTab')">
+            Chassis List</clr-tab-link>
+         <!-- [end-chassis-code] -->
+
+         <!-- ------------------- Home tab ---------------------- -->
+
+         <clr-tab-content [clrTabContentActive]="isActiveTab('homeTab')">
+            <div class="content-area">
+               <clr-icon shape="home" size="96"></clr-icon>
+               <p>{{i18n.translate("mainView.content")}}</p>
+               <a class="nav-link nav-icon" href="javascript://" (click)="nav.showSettingsView()">
+                  <clr-icon shape="cog" size="24"></clr-icon>
+               </a>
+               <button (click)="nav.showSettingsView()" class="btn btn-link">{{i18n.translate("gotoSettings")}}</button>
+               <br/><i>View updated at {{updateTime}}</i>
+
+               <div *ngIf="gs.showDevUI()" class="dev-ui">
+                  <clr-icon shape="info" size="24"></clr-icon>Notes:
+                  <div>
+                  This is the plugin's main view, used to display global information.
+                  <br/>It can contain tabs like this one, or the
+                     <a class="nav-link nav-icon" href="https://vmware.github.io/clarity/documentation/app-layout" target="_blank">
+                        layout of your choice.
+                     </a>
+                  <br/>See the
+                     <a class="nav-link nav-icon" href="https://vmware.github.io/clarity/documentation" target="_blank">
+                        Clarity documentation</a> for the list of UI components available.
+                  <br/>Click <clr-icon shape="remove" size="16"></clr-icon> in the top left corner to hide
+                     the extra UI provided by the dev mode.
+                  </div>
+               </div>
+            </div>
+         </clr-tab-content>
+
+         <!-- -------------------Echo service tab ---------------------- -->
+
+         <clr-tab-content [clrTabContentActive]="isActiveTab('echoTab')">
+            <div class="content-area">
+               <p style="padding-bottom: 10px">Example of Java service running on the backend.</p>
+               <div class="card-columns card-columns-2">
+                  <div class="card clickable">
+                     <div class="card-header">
+                        {{i18n.translate("mainView.serviceTest")}}
+                     </div>
+                     <div class="card-block">
+                        {{i18n.translate("mainView.clickToCall")}}
+                        <p>
+                           <a id="helloBtn1" (click)="sendEcho(true)" class="btn">
+                              {{i18n.translate("mainView.helloBtn1")}}</a>
+                           <a id="helloBtn2" (click)="sendEcho(false)" class="btn">
+                              {{i18n.translate("mainView.helloBtn2")}}</a>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </clr-tab-content>
+
+         <!-- ------------------- Chassis tab ------------------[removable-chassis-code] -->
+
+         <clr-tab-content [clrTabContentActive]="isActiveTab('chassisTab')">
+            <div class="content-area">
+               <img src="./assets/images/chassis_image.png" style="float: left" width="400">
+               <a (click)="editChassis()" class="btn btn-link">
+                  {{i18n.translate("chassis.createAction")}}
+               </a>
+               <br/><clr-icon shape="ellipsis-vertical" size="24"></clr-icon>{{i18n.translate("useLeftMenu")}}
+
+               <clr-datagrid>
+                  <clr-dg-column [clrDgField]="'name'">{{i18n.translate("header.name")}}</clr-dg-column>
+                  <clr-dg-column>{{i18n.translate("header.dimensions")}}</clr-dg-column>
+                  <clr-dg-column [clrDgField]="'serverType'">{{i18n.translate("header.serverType")}}</clr-dg-column>
+
+                  <clr-dg-row *clrDgItems="let chassis of chassisList" [clrDgItem]="chassis">
+                     <clr-dg-action-overflow>
+                        <button class="action-item" (click)="gotoChassis(chassis)">{{i18n.translate("menu.goto")}}</button>
+                        <button class="action-item" (click)="editChassis(chassis)">{{i18n.translate("menu.edit")}}</button>
+                        <button class="action-item" (click)="deleteChassis(chassis)">{{i18n.translate("menu.delete")}}</button>
+                     </clr-dg-action-overflow>
+
+                     <clr-dg-cell>{{chassis.name}}</clr-dg-cell>
+                     <clr-dg-cell>{{chassis.dimensions}}</clr-dg-cell>
+                     <clr-dg-cell>{{chassis.serverType}}</clr-dg-cell>
+                  </clr-dg-row>
+
+                  <clr-dg-footer>
+                     {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+                     of {{pagination.totalItems}} chassis
+                     <clr-dg-pagination #pagination [clrDgPageSize]="10"></clr-dg-pagination>
+                  </clr-dg-footer>
+               </clr-datagrid>
+            </div>
+         </clr-tab-content>
+         <!-- [end-chassis-code] -->
+      </clr-tabs>
+      <!-- Dev mode sidenav to facilitate object navigation -->
+      <sidenav *ngIf="gs.showSidenav()" style="order:-1"></sidenav>
+
+   </div>
+</div>
+
+<!--
+   Modal dialog for the echoService response. Two implementations are provided below:
+   1) The first one with <dialog-box> creates a real modal dialog in the vSphere Client
+   2) The second one with <crl-modal> creates a popup modal only within the plugin view.
+   => You must choose between having a client-wide modal dialog with limited API
+      and a simple local popup for small or static content (such as this echo response)
+   => Note that in dev mode both dialogs look the same.
+-->
+<dialog-box *ngIf="!gs.isPluginMode()"></dialog-box>
+
+<clr-modal [(clrModalOpen)]="echoModalOpened" [clrModalSize]="'sm'" [clrModalStaticBackdrop]="true">
+   <h3 class="modal-title">{{i18n.translate("mainView.echoResponse")}}</h3>
+   <div class="modal-body">
+      <p>{{echoMsg}}</p>
+      <p>{{i18n.translate("mainView.popup1.text")}}</p>
+   </div>
+   <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" (click)="onSubmitEcho()">{{i18n.translate("button.ok")}}</button>
+   </div>
+</clr-modal>
+

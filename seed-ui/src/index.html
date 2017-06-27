@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <title>__pluginName__ plugin</title>
+   <script>
+      // Set base href to /ui/__pluginName__/ in plugin mode, and to / in standalone mode
+      var _href = document.location.href;
+      if (_href.indexOf("/index.html") > 0) {
+         _href = _href.substring(0, _href.indexOf("/index.html") + 1);
+      } else {
+         _href = "/";
+      }
+      document.write('<base href="' + _href + '" />');
+   </script>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+<my-app>Loading...</my-app>
+</body>
+</html>

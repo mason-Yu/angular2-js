@@ -1,0 +1,35 @@
+<form class="compact" [ngClass]="pluginFormClass" *ngIf="chassis" (ngSubmit)="onSubmit()" #editorForm="ngForm">
+   <section class="form-block">
+      <label>Simple Form Example</label>
+      <div class="form-group">
+         <label  class="required">Name</label>
+         <!-- Clarity input validation uses tooltip to show an error (class set to 'invalid').
+              Angular built-in validators used to check non-empty, non-space-first and max length -->
+         <label role="tooltip"
+                class="tooltip tooltip-top-left tooltip-validation {{name.valid ? '':'invalid'}} tooltip-md">
+            <input type="text" [(ngModel)]="chassis.name" name="name" #name="ngModel" size="35"
+                   required pattern="\S.*" maxlength="40">
+            <span class="tooltip-content">Name cannot be empty!</span>
+         </label>
+      </div>
+      <div class="form-group">
+         <label>Dimensions</label>
+         <input type="text" [(ngModel)]="chassis.dimensions" name="dimensions" size="35">
+      </div>
+      <div class="form-group">
+         <label for="aForm_3">Server type</label>
+         <div class="select">
+            <select id="aForm_3">
+               <option>Type A</option>
+               <option>Type B</option>
+               <option>Type C</option>
+               <option>Type D</option>
+            </select>
+         </div>
+      </div>
+   </section>
+   <div *ngIf="gs.isPluginMode()" class="plugin-modal-footer">
+      <button type="button" class="btn btn-outline" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!editorForm.form.valid">Ok</button>
+   </div>
+</form>

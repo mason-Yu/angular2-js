@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+   Plugin package for using Mitre's HTTP-Proxy-Servlet in a dev environment.
+
+   **** THIS SHOULD NOT BE PACKAGED AS IS IN YOUR PRODUCTION PLUGIN ****
+
+   See https://github.com/mitre/HTTP-Proxy-Servlet
+   See README.md for building http-proxy-servlet.jar which must be added to /plugins
+-->
+<pluginPackage id="com.vmware.samples.httpproxytool" version="1.0.0" name="httpproxytool" scope="global"
+               type="html" description="Http Proxy Servlet tool" vendor="VMware">
+
+   <dependencies>
+      <pluginPackage id="com.vmware.vsphere.client" version="6.5.0" />
+   </dependencies>
+
+   <bundlesOrder>
+      <bundle id="org.mitre.dsmiley.httpproxy" />
+      <bundle id="com.vmware.samples.httpproxytool" />
+   </bundlesOrder>
+
+</pluginPackage>

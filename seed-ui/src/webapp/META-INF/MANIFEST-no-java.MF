@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: __projectName-ui__
+Bundle-SymbolicName: __packageName__.__projectName-ui__
+Bundle-Version: 1.0.0
+Bundle-Vendor: VMware
+Web-ContextPath: vsphere-client/__pluginName__

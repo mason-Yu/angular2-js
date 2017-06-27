@@ -1,0 +1,22 @@
+// WARNING: these styles are shared with all child components because the flag
+//          encapsulation: ViewEncapsulation.None is set in app.component.ts
+
+// Shared style to display sidenav correctly
+.td-sidenav {
+  vertical-align: top;
+  padding: 0px;
+  background-color: #CFD8DC
+}
+
+// Shared style to display subnav correctly
+.td-subnav {
+  vertical-align: top;
+  width: 100%;
+  padding: 0px;
+}
+
+// Lower opacity for dev-ui only elements
+.dev-ui {
+  padding-top: 20px;
+  opacity: 0.6;
+}

@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   __pluginName__ plugin metadata.
+   The <plugin> tag doesn't contain any moduleUri property because it is an HTML plugin.
+-->
+
+<plugin id="__packageName__"
+      defaultBundle="__bundleName__">
+
+   <resources>
+      <resource locale="{locale}">
+         <module uri="locales/__projectName-ui__-{locale}.swf"/>
+      </resource>
+   </resources>
+
+   <dependencies>
+      <!-- Allow HTML Client to display plugin icons in menus, shortcuts, object lists -->
+      <dependency type="css" uri="__pluginName__/assets/css/plugin-icons.css" />
+   </dependencies>
+
+    <!-- Home view shortcut -->
+
+   <extension id="__packageName__.homeShortcut">
+      <extendedPoint>vise.home.shortcuts</extendedPoint>
+      <object>
+         <name>#{app.name}</name>
+         <categoryUid>vsphere.core.controlcenter.monitoringCategory</categoryUid>
+         <targetViewUid>__packageName__.mainView</targetViewUid>
+      </object>
+   </extension>
+
+   <!-- Category in the Administration inventory view -->
+
+   <extension id="__packageName__.adminCategory">
+      <extendedPoint>vise.navigator.nodespecs</extendedPoint>
+      <object>
+         <title>#{app.name}</title>
+         <parentUid>vsphere.core.navigator.administration</parentUid>
+      </object>
+   </extension>
+
+   <!-- Node in the plugin Category created above -->
+
+   <extension id="__packageName__.adminSettings">
+      <extendedPoint>vise.navigator.nodespecs</extendedPoint>
+      <object>
+         <title>#{settings}</title>
+         <parentUid>__packageName__.adminCategory</parentUid>
+         <navigationTargetUid>__packageName__.settingsView</navigationTargetUid>
+      </object>
+   </extension>
+
+   <!-- Main view -->
+
+   <extension id="__packageName__.mainView">
+      <extendedPoint>vise.global.views</extendedPoint>
+      <object>
+         <name>#{app.mainView}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=main</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+   <!-- Settings view -->
+
+   <extension id="__packageName__.settingsView">
+      <extendedPoint>vise.global.views</extendedPoint>
+      <object>
+         <name>#{app.settingView}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=settings</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+   <!-- Host monitor tab view -->
+
+   <extension id="__packageName__.host.monitorView">
+      <extendedPoint>vsphere.core.host.monitorViews</extendedPoint>
+      <object>
+         <name>#{app.name}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=monitor</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+   <!-- Host configure tab view -->
+
+   <extension id="__packageName__.host.manageView">
+      <extendedPoint>vsphere.core.host.manageViews</extendedPoint>
+      <object>
+         <name>#{app.name}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=manage</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+   <!-- Host summary portlet -->
+
+   <extension id="__packageName__.host.summaryView">
+      <extendedPoint>vsphere.core.host.summarySectionViews</extendedPoint>
+      <object>
+         <name>#{app.name}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=summary</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+   <!-- Sample Actions on Hosts -->
+
+   <extension id="__packageName__.actionSet">
+      <extendedPoint>vise.actions.sets</extendedPoint>
+      <object>
+         <actions>
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.sampleAction1</uid>
+               <label>#{sampleAction1.name}</label>
+               <icon>#{addIcon}</icon>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <!-- execute action1 on client-side, i.e. opens a modal dialog -->
+                     <actionUrl>/vsphere-client/__pluginName__/index.html?view=action1-modal</actionUrl>
+                     <dialogTitle>#{sampleAction1.name}</dialogTitle>
+                     <dialogSize>576,260</dialogSize>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.sampleAction2</uid>
+               <label>#{sampleAction2.name}</label>
+               <icon>#{editIcon}</icon>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <!-- execute action2 on client-side, i.e. opens a modal wizard -->
+                     <actionUrl>/vsphere-client/__pluginName__/index.html?view=action2-wizard</actionUrl>
+                     <dialogTitle>#{sampleAction2.name}</dialogTitle>
+                     <dialogSize>861,421</dialogSize>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.sampleAction3</uid>
+               <label>#{sampleAction3.name}</label>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <!-- action3 is headless, it calls the ActionController endpoint  -->
+                     <actionUrl>/vsphere-client/__pluginName__/rest/actions.html</actionUrl>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+         </actions>
+      </object>
+      <metadata>
+         <objectType>HostSystem</objectType>
+      </metadata>
+   </extension>
+
+   <!--
+      This adds a sub-menu to the Host menu, using the actions defined above
+   -->
+   <extension id="__packageName__.hostMenu">
+      <extendedPoint>vsphere.core.menus.solutionMenus</extendedPoint>
+      <object>
+         <!-- <label> is required here because it is an extension to an existing menu -->
+         <label>#{sampleMenu.label}</label>
+         <uid>__packageName__.hostMenu</uid>
+         <children>
+            <Array>
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <type>action</type>
+                  <uid>__packageName__.sampleAction1</uid>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <type>action</type>
+                  <uid>__packageName__.sampleAction2</uid>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <type>action</type>
+                  <uid>__packageName__.sampleAction3</uid>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+            </Array>
+         </children>
+      </object>
+      <metadata>
+         <objectType>HostSystem</objectType>
+      </metadata>
+   </extension>
+
+   <!-- [removable-chassis-code] -->
+   <!-- ************************ CHASSIS OBJECTS EXTENSIONS ***************************** -->
+
+   <!-- Add an app.name node to the Virtual Infrastructure view of the LHS object navigator.
+       This category node is used below for the chassis collection -->
+   <extension id="__packageName__.chassisCategory">
+      <extendedPoint>vise.navigator.nodespecs</extendedPoint>
+      <object>
+         <title>#{app.name}</title>
+         <parentUid>vsphere.core.navigator.virtualInfrastructure</parentUid>
+      </object>
+   </extension>
+
+
+   <!-- Chassis objects collection template,
+   which creates the Chassis collection node in the inventory under app.name.
+   Variables:
+      - namespace: The namespace used in the extension points and extension ids,
+         it must be different than the one in vsphere.core.inventory.objectViewTemplate!
+      - title: resourceId of the title of the collection.
+      - icon: resourceId of the icon to use in the inventory list.
+      - objectType: the same object type as in objectViewTemplate above.
+      - listViewId: extension id of the object list view created by objectViewTemplate
+      - parentUid: extension id of the category node under which this belongs.
+   -->
+   <templateInstance id="__packageName__.chassis.collection">
+      <templateId>vsphere.core.inventorylist.objectCollectionTemplate</templateId>
+      <variable name="namespace" value="__packageName__.chassis_collection"/>
+      <variable name="title" value="#{chassisLabel}"/>
+      <variable name="icon" value="#{chassis}"/>
+      <variable name="objectType" value="samples:Chassis"/>
+      <variable name="listViewId" value="__packageName__.chassis.list"/>
+      <variable name="parentUid" value="__packageName__.chassisCategory"/>
+   </templateInstance>
+
+
+   <!-- Chassis object view template instance,
+   which creates the object workspace (right hand side) for Chassis objects.
+   Variables:
+      - namespace: The prefix used in extension points and extension Ids.
+      - objectType: The view's object type used in the java data layer.
+   -->
+   <templateInstance id="__packageName__.chassis.viewTemplateInstance">
+      <templateId>vsphere.core.inventory.objectViewTemplate</templateId>
+      <variable name="namespace" value="__packageName__.chassis"/>
+      <variable name="objectType" value="samples:Chassis"/>
+   </templateInstance>
+
+   <!-- Chassis summary view -->
+   <extension id="__packageName__.chassis.summaryView">
+      <extendedPoint>__packageName__.chassis.summaryViews</extendedPoint>
+      <object>
+         <name>#{summary.view}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=chassis-summary</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+   <!-- Chassis monitor view 1 -->
+   <extension id="__packageName__.chassis.monitorView">
+      <extendedPoint>__packageName__.chassis.monitorViews</extendedPoint>
+      <object>
+         <name>#{chassis.monitor.view1}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=chassis-monitor</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+
+   <!-- Chassis manage view 1 -->
+   <extension id="__packageName__.chassis.manageView">
+      <extendedPoint>__packageName__.chassis.manageViews</extendedPoint>
+      <object>
+         <name>#{chassis.manage.view1}</name>
+         <componentClass className="com.vmware.vsphere.client.htmlbridge.HtmlView">
+            <object>
+               <root>
+                  <url>/vsphere-client/__pluginName__/index.html?view=chassis-manage</url>
+               </root>
+            </object>
+         </componentClass>
+      </object>
+   </extension>
+
+    <!--
+        Chassis columns, displayed in the Objects tab list.
+     -->
+   <extension id="__packageName__.chassis.sampleColumns">
+      <!-- This extension point is created by objectViewTemplate above -->
+      <extendedPoint>__packageName__.chassis.list.columns</extendedPoint>
+      <object>
+         <!-- XML representation of com.vmware.ui.lists.ColumnSetContainer -->
+         <items>
+            <!-- Chassis name column -->
+            <com.vmware.ui.lists.ColumnContainer>
+               <uid>__packageName__.column.name</uid>
+               <dataInfo>
+                  <com.vmware.ui.lists.ColumnDataSourceInfo>
+                     <!-- Column header -->
+                     <headerText>#{name}</headerText>
+                     <!-- Object property whose text value will be displayed (array of 1 element) -->
+                     <requestedProperties>
+                        <String>name</String>
+                     </requestedProperties>
+                     <!-- Use sortProperty to allow column to be sorted with header click -->
+                     <sortProperty>name</sortProperty>
+                     <!-- Use exportProperty to allow column data to be exported -->
+                     <exportProperty>name</exportProperty>
+                  </com.vmware.ui.lists.ColumnDataSourceInfo>
+               </dataInfo>
+            </com.vmware.ui.lists.ColumnContainer>
+
+            <!-- Chassis dimensions column -->
+            <com.vmware.ui.lists.ColumnContainer>
+               <uid>__packageName__.column.dimensions</uid>
+               <dataInfo>
+                  <com.vmware.ui.lists.ColumnDataSourceInfo>
+                     <headerText>#{dimensions}</headerText>
+                     <requestedProperties>
+                        <String>dimensions</String>
+                     </requestedProperties>
+                     <exportProperty>dimensions</exportProperty>
+                  </com.vmware.ui.lists.ColumnDataSourceInfo>
+               </dataInfo>
+            </com.vmware.ui.lists.ColumnContainer>
+
+            <!-- Chassis serverType column -->
+            <com.vmware.ui.lists.ColumnContainer>
+               <uid>__packageName__.column.serverType</uid>
+               <dataInfo>
+                  <com.vmware.ui.lists.ColumnDataSourceInfo>
+                     <requestedProperties>
+                        <String>serverType</String>
+                     </requestedProperties>
+                     <exportProperty>serverType</exportProperty>
+                     <headerText>#{serverType}</headerText>
+                  </com.vmware.ui.lists.ColumnDataSourceInfo>
+               </dataInfo>
+            </com.vmware.ui.lists.ColumnContainer>
+         </items>
+      </object>
+   </extension>
+
+   <!-- Chassis Actions -->
+
+   <extension id="__packageName__.chassis.actionSet">
+      <extendedPoint>vise.actions.sets</extendedPoint>
+      <object>
+         <actions>
+            <!-- Edit Chassis -->
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.editChassis</uid>
+               <label>#{chassis.editAction}</label>
+               <icon>#{editIcon}</icon>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <!-- execute the action on client-side (html view in a modal dialog) -->
+                     <actionUrl>/vsphere-client/__pluginName__/index.html?view=edit-chassis</actionUrl>
+                     <dialogTitle>#{chassis.editAction}</dialogTitle>
+                     <dialogSize>576,248</dialogSize>
+                     <dialogIcon>#{editChassis}</dialogIcon>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+
+            <!-- Delete Chassis -->
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.deleteChassis</uid>
+               <label>#{chassis.deleteAction}</label>
+               <icon>#{removeIcon}</icon>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <!-- actionUrl maps to ActionsController on the java side -->
+                     <actionUrl>/vsphere-client/__pluginName__/rest/actions.html</actionUrl>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+
+            <!-- Additional action without implementation. -->
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.otherAction</uid>
+               <label>Other Action</label>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <actionUrl>/vsphere-client/__pluginName__/rest/actions.html</actionUrl>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+
+            <!-- Additional action without implementation. -->
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.otherAction2</uid>
+               <label>Other Action</label>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <actionUrl>/vsphere-client/__pluginName__/rest/actions.html</actionUrl>
+                  </root></object>
+               </delegate>
+            </com.vmware.actionsfw.ActionSpec>
+
+         </actions>
+      </object>
+      <metadata>
+         <!-- This filters the actions to be visible only on Chassis -->
+         <objectType>samples:Chassis</objectType>
+      </metadata>
+   </extension>
+
+   <!-- 'createChassis' list action is defined in a separate extension without any
+         objectType metadata because it is global. It should not show up in the
+         chassis object menu as it does not belong to any chassis object. -->
+   <extension id="__packageName__.listActionSet">
+      <extendedPoint>vise.actions.sets</extendedPoint>
+      <object>
+         <actions>
+            <!-- Create Chassis -->
+            <com.vmware.actionsfw.ActionSpec>
+               <uid>__packageName__.createChassis</uid>
+               <label>#{chassis.createAction}</label>
+               <icon>#{addIcon}</icon>
+               <delegate>
+                  <className>com.vmware.vsphere.client.htmlbridge.HtmlActionDelegate</className>
+                  <object><root>
+                     <!-- execute the action on client-side (html view in a modal dialog) -->
+                     <actionUrl>/vsphere-client/__pluginName__/index.html?view=edit-chassis</actionUrl>
+                     <dialogTitle>#{chassis.createAction}</dialogTitle>
+                     <dialogSize>576,248</dialogSize>
+                     <dialogIcon>#{addIcon}</dialogIcon>
+                  </root></object>
+               </delegate>
+               <!-- All context-less actions should be marked as private to prevent them
+                    from showing up in all menus.-->
+               <privateAction>true</privateAction>
+            </com.vmware.actionsfw.ActionSpec>
+         </actions>
+      </object>
+   </extension>
+
+
+   <!--
+   This solutionMenus extension uses the actions defined above to create the chassis menu,
+   i.e. menu items are in a specific order, sub-menu and separators can be added.
+   -->
+   <extension id="__packageName__.chassis.menu">
+      <extendedPoint>vsphere.core.menus.solutionMenus</extendedPoint>
+      <object>
+         <children>
+            <Array>
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <!-- Edit chassis -->
+                  <type>action</type>
+                  <uid>__packageName__.editChassis</uid>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <!-- Remove chassis -->
+                  <type>action</type>
+                  <uid>__packageName__.deleteChassis</uid>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <!-- Add a separator between menus items -->
+                  <type>separator</type>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+
+               <com.vmware.actionsfw.ActionMenuItemSpec>
+                  <!-- sub-menu example -->
+                  <uid>other-actions</uid>
+                  <label>Other actions</label>
+                  <children>
+                     <Array>
+                        <com.vmware.actionsfw.ActionMenuItemSpec>
+                           <type>action</type>
+                           <uid>__packageName__.otherAction</uid>
+                        </com.vmware.actionsfw.ActionMenuItemSpec>
+                        <com.vmware.actionsfw.ActionMenuItemSpec>
+                           <type>action</type>
+                           <uid>__packageName__.otherAction2</uid>
+                        </com.vmware.actionsfw.ActionMenuItemSpec>
+                     </Array>
+                  </children>
+               </com.vmware.actionsfw.ActionMenuItemSpec>
+            </Array>
+         </children>
+      </object>
+      <metadata>
+         <objectType>samples:Chassis</objectType>
+      </metadata>
+   </extension>
+
+   <!-- Prioritized actions -->
+
+   <!-- UI info associated with the chassis type owned by this plugin.
+      This is used in conjunction with prioritization extensions, to verify that
+      only this plugin can modify prioritization settings on chassis. -->
+   <extension id="__packageName__.chassis.objectType">
+      <extendedPoint>vsphere.core.objectTypes</extendedPoint>
+      <object>
+         <types>
+            <String>samples:Chassis</String>
+         </types>
+         <label>#{chassisLabel}</label>
+         <labelPlural>#{chassisPlural}</labelPlural>
+         <icon>#{chassis}</icon>
+      </object>
+   </extension>
+
+   <!-- Global actions in the chassis list, i.e. actions that don't require a
+      selected object and appear in the toolbar LHS => createChassis here. -->
+   <extension id="__packageName__.chassis.listAction">
+      <extendedPoint>vmware.prioritization.listActions</extendedPoint>
+      <object>
+         <prioritizedIds>
+            <String>__packageName__.createChassis</String>
+         </prioritizedIds>
+         <regionId>__packageName__.chassis.list</regionId>
+      </object>
+   </extension>
+
+   <!-- Prioritized actions to appear in the chassis list's action toolbar and
+      the action menu drop-down. Here editChassis and deleteChassis are the promoted
+      actions for the type 'sample:Chassis' type. -->
+   <extension id="__packageName__.chassis.promotedActions">
+      <extendedPoint>vmware.prioritization.actions</extendedPoint>
+      <object>
+         <prioritizedIds>
+            <String>__packageName__.editChassis</String>
+            <String>__packageName__.deleteChassis</String>
+         </prioritizedIds>
+         <regionId>__packageName__.chassis.list</regionId>
+         <actionTargetTypes>
+            <String>samples:Chassis</String>
+         </actionTargetTypes>
+      </object>
+   </extension>
+
+   <!-- Chassis icon -->
+   <extension id="__packageName__.chassis.iconLabelSpecCollection">
+      <extendedPoint>vise.inventory.representationspecs</extendedPoint>
+      <object>
+         <objectType>samples:Chassis</objectType>
+         <specCollection>
+            <com.vmware.ui.objectrepresentation.model.IconLabelSpec>
+               <iconId>#{chassis}</iconId>
+            </com.vmware.ui.objectrepresentation.model.IconLabelSpec>
+         </specCollection>
+      </object>
+   </extension>
+
+   <!-- [end-chassis-code] -->
+</plugin>

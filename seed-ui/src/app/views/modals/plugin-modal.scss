@@ -1,0 +1,14 @@
+// Common formatting styles used to adjust the modal content in plugin mode
+// This is necessary because there is no Clarity modals classes in that case
+// The parent container is directly the iFrame body created by the Client platform
+
+.plugin-modal-footer {
+  @extend .modal-footer !optional;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 12px;
+}
+
+.plugin-modal-form {
+  padding-left: 24px;
+}

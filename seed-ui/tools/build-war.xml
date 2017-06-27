@@ -1,0 +1,213 @@
+<project name="__projectName-ui__" default="make-bundle">
+   <description>
+       Ant build script for HTML plugin. It outputs a .war file that can be
+       copied in the "plugins" folder of the plugin-package.
+   </description>
+
+   <!-- Properties specific to this project -->
+   <property name="PROJECT_NAME" value="__projectName-ui__"/>
+   <property name="BUNDLE_NAME" value="__bundleName__"/>
+
+   <!-- SDK home folders should be set in environment variables -->
+   <property environment="env"/>
+   <property name="FLEX_HOME" value="${env.FLEX_HOME}"/>
+   <property name="VSPHERE_SDK_HOME" value="${env.VSPHERE_SDK_HOME}"/>
+
+   <property name="BUILD_DIR" value="${basedir}/../target"/>
+   <property name="SRC_DIR" value="${basedir}/../src"/>
+   <property name="WEBAPP_DIR" value="${basedir}/../src/webapp"/>
+   <property name="DIST_DIR" value="${basedir}/../dist"/>
+   <property name="WAR_NAME" value="${PROJECT_NAME}.war"/>
+
+   <!-- Conditional build variables to use the Http Proxy tool or not -->
+   <property name="USE_HTTP_PROXY" value="${useHttpProxy}"/>
+   <property name="NO_JAVA" value="${noJava}"/>
+   <condition property="DEFAULT_BUILD">
+      <and>
+         <isfalse value="${USE_HTTP_PROXY}"/>
+         <isfalse value="${NO_JAVA}"/>
+      </and>
+   </condition>
+
+   <condition property="MANIFEST_FILE" value="MANIFEST.MF">
+      <istrue value="${DEFAULT_BUILD}"/>
+   </condition>
+   <condition property="MANIFEST_FILE" value="MANIFEST-with-proxy.MF">
+      <istrue value="${USE_HTTP_PROXY}"/>
+   </condition>
+   <condition property="MANIFEST_FILE" value="MANIFEST-no-java.MF">
+      <istrue value="${NO_JAVA}"/>
+   </condition>
+
+   <condition property="WEB.XML" value="web.xml">
+      <istrue value="${DEFAULT_BUILD}"/>
+   </condition>
+   <condition property="WEB.XML" value="web-with-proxy.xml">
+      <istrue value="${USE_HTTP_PROXY}"/>
+   </condition>
+   <condition property="WEB.XML" value="web-no-java.xml">
+      <istrue value="${NO_JAVA}"/>
+   </condition>
+   <condition property="BUNDLE-CONTEXT.XML" value="" else="bundle-context.xml">
+      <istrue value="${DEFAULT_BUILD}"/>
+   </condition>
+
+   <!-- Import the definition of mxmlc-macro -->
+   <import file="${VSPHERE_SDK_HOME}/resources/flex-macros.xml"/>
+
+   <!-- Check SDK setup -->
+   <target name="check-sdk">
+      <available file="${FLEX_HOME}/frameworks/libs/player/11.5/playerglobal.swc" property="flex-sdk-ok"/>
+      <fail unless="flex-sdk-ok" message="Flex SDK setup incomplete!
+${line.separator} Cannot find file ${FLEX_HOME}/frameworks/libs/player/11.5/playerglobal.swc
+${line.separator} This file is required to compile for Flash Player 11.5 and must be added to your setup
+${line.separator} Download http://fpdownload.macromedia.com/get/flashplayer/installers/archive/playerglobal/playerglobal11_5.swc
+${line.separator} Then rename it playerglobal.swc and move it to ${FLEX_HOME}/frameworks/libs/player/11.5/" />
+   </target>
+
+   <!-- clean the generated build files -->
+   <target name="init">
+      <delete dir="${BUILD_DIR}" />
+
+      <condition property="isMac">
+         <os family="mac" />
+      </condition>
+      <condition property="isWindows">
+         <os family="windows" />
+      </condition>
+   </target>
+
+   <!-- normal build -->
+   <target name="ng-build" depends="build-mac, build-windows"></target>
+
+   <target name="build-mac" if="isMac">
+      <exec executable="ng">
+         <arg value="build"/>
+      </exec>
+   </target>
+
+   <target name="build-windows" if="isWindows">
+      <exec executable="ng.cmd">
+         <arg value="build"/>
+      </exec>
+   </target>
+
+   <!-- production build, including the AOT option required to lazy loaded modules -->
+   <target name="ng-build-prod" depends="build-prod-mac, build-prod-windows"></target>
+
+   <target name="build-prod-mac" if="isMac">
+      <exec executable="ng">
+         <arg value="build"/>
+         <arg value="--prod"/>
+         <arg value="--aot"/>
+      </exec>
+   </target>
+
+   <target name="build-prod-windows" if="isWindows">
+      <exec executable="ng.cmd">
+         <arg value="build"/>
+         <arg value="--prod"/>
+         <arg value="--aot"/>
+      </exec>
+   </target>
+
+
+   <!-- Compile separate bundle resource files ${PROJECT_NAME}-{locale}.swf.
+        This file name must match the name declared in plugin.xml <resource> tag.
+   -->
+   <target name="compile-resources" depends="check-sdk">
+      <property file="${BUILD_DIR}/bundles.properties"/>
+
+      <!-- default US version -->
+      <copy file="${WEBAPP_DIR}/locales/${BUNDLE_NAME}_en_US.properties"
+            tofile="${WEBAPP_DIR}/locales/${BUNDLE_NAME}.properties"/>
+      <mxmlc-macro>
+         <arg line="-locale=en_US" />
+         <arg line="-source-path+=${SRC_DIR}/webapp/locales"/>
+         <arg line="-output=${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"/>
+         <arg line="-include-resource-bundles ${BUNDLE_NAME}" />
+      </mxmlc-macro>
+
+      <!-- French version -->
+      <copy file="${WEBAPP_DIR}/locales/${BUNDLE_NAME}_fr_FR.properties"
+            tofile="${WEBAPP_DIR}/locales/${BUNDLE_NAME}.properties"/>
+      <mxmlc-macro>
+         <arg line="-locale=fr_FR" />
+         <arg line="-source-path+=${SRC_DIR}/webapp/locales"/>
+         <arg line="-output=${WEBAPP_DIR}/locales/${PROJECT_NAME}-fr_FR.swf"/>
+         <arg line="-include-resource-bundles ${BUNDLE_NAME}" />
+      </mxmlc-macro>
+
+      <delete file="${WEBAPP_DIR}/locales/${BUNDLE_NAME}.properties"/>
+
+      <!-- Generate resource bundles for the other required locales
+           with a copy of the US version
+
+      <copy file="${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"
+          tofile="${WEBAPP_DIR}/locales/${PROJECT_NAME}-de_DE.swf"/>
+      <copy file="${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"
+          tofile="${WEBAPP_DIR}/locales/${PROJECT_NAME}-es_ES.swf"/>
+      <copy file="${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"
+          tofile="${WEBAPP_DIR}/locales/${PROJECT_NAME}-ja_JP.swf"/>
+      <copy file="${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"
+          tofile="${WEBAPP_DIR}/locales/${PROJECT_NAME}-ko_KR.swf"/>
+      <copy file="${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"
+          tofile="${WEBAPP_DIR}/locales/${PROJECT_NAME}-zh_CN.swf"/>
+      <copy file="${WEBAPP_DIR}/locales/${PROJECT_NAME}-en_US.swf"
+          tofile="${WEBAPP_DIR}/locales/${PROJECT_NAME}-zh_TW.swf"/>
+      -->
+   </target>
+
+   <!--
+     Convert properties file into .json file to be able to load properties in dev mode
+   -->
+   <target name="convert-properties">
+      <copy todir="${WEBAPP_DIR}/locales" overwrite="true">
+         <fileset dir="${WEBAPP_DIR}/locales">
+            <include name="*.properties"/>
+         </fileset>
+         <globmapper from="*.properties" to="*.json"/>
+         <filterchain>
+            <tokenfilter>
+               <filetokenizer/>
+               <replaceregex pattern="#.*\n" replace="" flags="g"/>
+               <replaceregex pattern='"' replace='\\\\"' flags="g"/>
+               <replaceregex pattern="([^=\s]+)\s*=\s*(.*)" replace='"\1": "\2",' flags="g"/>
+               <replaceregex pattern="(.)" replace="{ \1" />
+               <replaceregex pattern=",(?![\s]+[^,]+,)" replace=" }" flags="g"/>
+            </tokenfilter>
+         </filterchain>
+      </copy>
+   </target>
+
+   <!--
+      Create the war bundle.
+      FOR PRODUCTION, replace ng-build by ng-build-prod on the <target> line below.
+    -->
+   <target name="make-bundle"  depends="init, ng-build, compile-resources">
+      <mkdir dir="${BUILD_DIR}/webapp/"/>
+      <copy todir="${BUILD_DIR}/webapp">
+         <fileset dir="${DIST_DIR}"/>
+         <fileset dir="${SRC_DIR}/webapp">
+            <exclude name="**/MANIFEST*.MF"/>
+            <exclude name="**/web*.xml"/>
+         </fileset>
+      </copy>
+      <copy file="${SRC_DIR}/webapp/WEB-INF/${WEB.XML}" tofile="${BUILD_DIR}/webapp/WEB-INF/web.xml"
+            failonerror="false" quiet="true"/>
+      <delete file="${BUILD_DIR}/webapp/WEB-INF/spring/${BUNDLE-CONTEXT.XML}" quiet="true"/>
+
+      <jar destfile="${BUILD_DIR}/${WAR_NAME}"
+           manifest="${WEBAPP_DIR}/META-INF/${MANIFEST_FILE}"
+           basedir="${BUILD_DIR}/webapp">
+      </jar>
+   </target>
+
+   <!-- Hot deploy the war bundle after building it. -->
+   <target name="deploy-bundle" depends="make-bundle">
+      <copy todir="${VSPHERE_SDK_HOME}/vsphere-ui/server/pickup/"
+            file="${BUILD_DIR}/${WAR_NAME}">
+      </copy>
+   </target>
+</project>
+

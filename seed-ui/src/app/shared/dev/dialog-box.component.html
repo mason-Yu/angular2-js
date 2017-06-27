@@ -1,0 +1,10 @@
+<clr-modal [(clrModalOpen)]="modalOpened" [clrModalSize]="size" [clrModalStaticBackdrop]="true">
+   <h3 class="modal-title">{{title}}</h3>
+   <div class="modal-body">
+      <dynamic-component [componentData]="componentData"></dynamic-component>
+   </div>
+   <div class="modal-footer">
+      <button *ngIf="showCancelButton" type="button" class="btn btn-outline" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" (click)="onSubmit()">Ok</button>
+   </div>
+</clr-modal>

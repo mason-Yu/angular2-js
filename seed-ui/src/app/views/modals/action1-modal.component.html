@@ -1,0 +1,35 @@
+<form class="compact" [ngClass]="pluginFormClass" (ngSubmit)="onSubmit()" #thisForm="ngForm">
+   <section class="form-block">
+      <label>Form parameters sent as action arguments:</label>
+      <div class="form-group">
+         <label  class="required">Parameter 1</label>
+         <!-- Clarity input validation uses tooltip to show an error (class set to 'invalid').
+              Angular built-in validators used to check non-empty, non-space-first and max length -->
+         <label role="tooltip"
+                class="tooltip tooltip-top-left tooltip-validation {{name.valid ? '':'invalid'}} tooltip-md">
+            <input type="text" [(ngModel)]="formData.param1" name="param1" #name="ngModel" size="31"
+                   required pattern="\S.*" maxlength="40">
+            <span class="tooltip-content">Parameter 1 cannot be empty!</span>
+         </label>
+      </div>
+      <div class="form-group">
+         <label>Parameter 2</label>
+         <input type="text" [(ngModel)]="formData.param2" name="param2" size="35">
+      </div>
+      <div class="form-group">
+         <label>Parameter 3</label>
+         <div class="select">
+            <select name="select" [(ngModel)]="formData.param3">
+               <option value="typeA">Type A</option>
+               <option value="typeB">Type B</option>
+               <option value="typeC">Type C</option>
+               <option value="typeD">Type D</option>
+            </select>
+         </div>
+      </div>
+   </section>
+   <div *ngIf="gs.isPluginMode()" class="plugin-modal-footer">
+      <button type="button" class="btn btn-outline" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!thisForm.form.valid">Ok</button>
+   </div>
+</form>

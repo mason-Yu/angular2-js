@@ -1,0 +1,8 @@
+<!--
+   Shortcut to invoke the build script with the deploy-bundle target.
+-->
+<project name="__projectName-ui__-deploy" default="deploy-bundle">
+   <target name="deploy-bundle">
+       <ant antfile="build-war.xml" target="deploy-bundle"/>
+   </target>
+</project>

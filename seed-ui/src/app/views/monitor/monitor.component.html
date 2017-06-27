@@ -1,0 +1,73 @@
+<!-- Optional alert component at the top of the view -->
+<app-alert></app-alert>
+
+<!-- ---------------------------- Dev mode components -------------------------------- -->
+<app-header *ngIf="gs.showDevUI()" ></app-header>
+
+<div class="main-container">
+<table style="height:100%;width:100%"><tr>
+
+   <td *ngIf="gs.showSidenav()" class="td-sidenav">
+      <!-- Left sidenav used as object navigator -->
+      <sidenav [parent]="instance"></sidenav>
+   </td>
+   <td *ngIf="host" class="td-subnav">
+      <!-- Subnav tabs to switch between object views -->
+      <subnav *ngIf="gs.showDevUI()" [objectId]="host.id" [objectType]="'host'"></subnav>
+
+<!-- ---------------------------- Monitor view content -------------------------------- -->
+      <div class="content-container">
+
+         <div class="content-area">
+            <h3 class="stack-header">
+               <span class="stack-title"><clr-icon shape="host" size="32"></clr-icon>
+                  {{i18n.translate(titleKey, host.name)}}</span>
+            </h3>
+            <dl class="stack-view">
+               <div class="stack-block">
+                  <dt class="stack-block-label">{{i18n.translate("host.name")}}</dt>
+                  <dd class="stack-block-content">{{host.name}}</dd>
+               </div>
+               <div class="stack-block">
+                  <dt class="stack-block-label">{{i18n.translate("host.status")}}</dt>
+                  <dd class="stack-block-content color-{{host.status}}">
+                     <clr-icon [attr.shape]="getStatusIcon(host)" size="24"></clr-icon> {{host.status}}
+                  </dd>
+               </div>
+               <div class="stack-block">
+                  <dt class="stack-block-label">{{i18n.translate("host.model")}}</dt>
+                  <dd class="stack-block-content">{{host.model}}</dd>
+                  <div class="stack-children"></div>
+               </div>
+               <div class="stack-block stack-block-expandable">
+                  <dt class="stack-block-label">{{i18n.translate("host.vms")}}</dt>
+                  <dd class="stack-block-content">{{host.vmCount}}</dd>
+                  <div class="stack-children"></div>
+               </div>
+            </dl>
+            <button (click)="nav.showObjectView(host.id, 'host', 'summary')" class="btn btn-link">
+               {{i18n.translate("gotoSummary")}}</button>
+            <button (click)="showOtherView(host.id)" class="btn btn-link">
+               {{i18n.translate(nav.getViewType() === 'monitor' ? "gotoConfigure" : "gotoMonitor")}}</button>
+
+<!-- ---------------------------- Dev mode components -------------------------------- -->
+            <div *ngIf="gs.showDevUI()" class="dev-ui">
+               <a (click)="openAction1Dialog()" class="btn btn-sm">Action1 - dialog</a>
+               <a (click)="openAction2Wizard()" class="btn btn-sm">Action2 - wizard</a>
+               <a (click)="callAction3()" class="btn btn-sm">Action3 - headless</a>
+               <p><clr-icon shape="info" size="24"></clr-icon>
+                  Monitor and Configure views are identical in this example.
+                  Action buttons are visible only in dev mode.</p>
+            </div>
+         </div>
+      </div>
+
+   </td>
+</tr></table>
+</div>
+<!--
+   Modal for host action1 and action2, provided in dev mode because there is no Host menu in the app.
+   In plugin mode the menu actions will open a platform modal containing the same content.
+-->
+<dialog-box *ngIf="!gs.isPluginMode() && host !== null"></dialog-box>
+<action2-wizard *ngIf="!gs.isPluginMode() && host !== null"></action2-wizard>

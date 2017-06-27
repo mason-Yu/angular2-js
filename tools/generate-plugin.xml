@@ -1,0 +1,67 @@
+<project name="create-plugin" default="build" basedir=".">
+   <description>
+       Create html plugin-ui and plugin-service projects from templates
+       Arguments:
+       - projectDir-ui: destination directory of UI plugin
+       - projectDir-service: destination directory of service plugin
+       - projectName-ui: like myPlugin-ui
+       - projectName-service: like myPlugin-service
+       - pluginName:    like myPlugin
+       - bundleName:    like "com_acme_myplugin"
+       - packageName:   like "com.acme.myplugin"
+       - packageDir: like "com/acme/myplugin"
+       - pluginUiTemplateDir: full path to the seed-ui directory
+       - pluginServTemplateDir: full path to the seed-service directory
+   </description>
+
+   <target name="build" depends="copyAndFilter-ui, copyAndFilter-service"/>
+
+   <!-- UI plugin project -->
+   <target name="copyAndFilter-ui">
+      <copy todir="${projectDir-ui}">
+         <fileset dir="${pluginUiTemplateDir}"
+                excludes="node_modules/**,dist/**,coverage/**,target/**,**/*.swf,documentation/**,yarn.lock"/>
+         <filterset begintoken="__" endtoken="__">
+            <filter token="pluginName" value="${pluginName}"/>
+            <filter token="projectName-ui" value="${projectName-ui}"/>
+            <filter token="projectName-service" value="${projectName-service}"/>
+            <filter token="packageName" value="${packageName}"/>
+            <filter token="bundleName" value="${bundleName}"/>
+          </filterset>
+      </copy>
+
+      <!-- copy binary files again because the previous copy with filter damages them -->
+      <copy todir="${projectDir-ui}/src/assets/images" overwrite="true" failonerror="false">
+         <fileset dir="${pluginUiTemplateDir}/src/assets/images"/>
+      </copy>
+
+      <move file="${projectDir-ui}/src/webapp/locales/__bundleName___en_US.properties"
+          tofile="${projectDir-ui}/src/webapp/locales/${bundleName}_en_US.properties"/>
+      <move file="${projectDir-ui}/src/webapp/locales/__bundleName___en_US.json"
+          tofile="${projectDir-ui}/src/webapp/locales/${bundleName}_en_US.json"/>
+      <move file="${projectDir-ui}/src/webapp/locales/__bundleName___fr_FR.properties"
+          tofile="${projectDir-ui}/src/webapp/locales/${bundleName}_fr_FR.properties"/>
+      <move file="${projectDir-ui}/src/webapp/locales/__bundleName___fr_FR.json"
+          tofile="${projectDir-ui}/src/webapp/locales/${bundleName}_fr_FR.json"/>
+
+   </target>
+
+   <!-- Service plugin project -->
+   <target name="copyAndFilter-service">
+      <copy todir="${projectDir-service}">
+         <fileset dir="${pluginServTemplateDir}"
+                  excludes="target/**"/>
+         <filterset begintoken="__" endtoken="__">
+            <filter token="pluginName" value="${pluginName}"/>
+            <filter token="projectName-ui" value="${projectName-ui}"/>
+            <filter token="projectName-service" value="${projectName-service}"/>
+            <filter token="packageName" value="${packageName}"/>
+          </filterset>
+      </copy>
+
+      <mkdir dir="${projectDir-service}/src/main/java/${packageDir}"/>
+      <move todir="${projectDir-service}/src/main/java/${packageDir}">
+         <fileset dir="${projectDir-service}/src/main/java/__packageName__"/>
+      </move>
+   </target>
+</project>

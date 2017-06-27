@@ -1,0 +1,69 @@
+<project name="__projectName-service__" default="make-jar-bundle">
+   <description>
+       Ant script to build __projectName-service__.
+       The output is a bundle in target/__projectName-service__.jar that can be
+       copied in the "plugins" folder of the plugin-package.
+       -----------------------------------------------------------------------
+       NOTE: in Eclipse/STS you can use the project builder directly.
+       -----------------------------------------------------------------------
+   </description>
+
+   <!-- SDK folders should be set in environment variables -->
+   <property environment="env"/>
+   <property name="VSPHERE_SDK_HOME" value="${env.VSPHERE_SDK_HOME}"/>
+
+   <!-- name of the jar output file -->
+   <property name="JAR_FILE" value="__projectName-service__.jar"/>
+
+   <property name="BUILD_DIR" value="../target"/>
+   <property name="CLASSES" value="${BUILD_DIR}/classes"/>
+   <property name="RES_DIR" value="../src/main/resources"/>
+
+   <!-- clean the generated build files -->
+   <target name="clean" description="Do not select this internal target.">
+      <delete dir="${BUILD_DIR}" />
+      <mkdir dir="${BUILD_DIR}/classes" />
+   </target>
+
+   <target name="compile-java" depends="clean" description="Do not select this internal target.">
+      <javac target="1.7"  source="1.7"
+             includeantruntime="false"
+             destdir="${CLASSES}"
+             fork="true" debug="on">
+         <src path="../src/main/java"/>
+         <classpath>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/vsphere-client-lib.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/commons-logging-1.1.1.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/com.springsource.javax.servlet-2.5.0.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/javax.servlet-api-3.0.1.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/spring-web-3.1.4.RELEASE.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/spring-beans-3.1.4.RELEASE.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/spring-context-3.1.4.RELEASE.jar"/>
+            <pathelement path="${VSPHERE_SDK_HOME}/libs/gson-2.3.1.jar"/>
+         </classpath>
+      </javac>
+   </target>
+
+   <!-- Build the jar -->
+   <target name="make-jar-bundle" depends="compile-java"
+           description="No need to use this script within Eclipse, use the native project builder!">
+      <!-- Add resources -->
+      <copy todir="${CLASSES}">
+         <fileset dir="${RES_DIR}"/>
+      </copy>
+
+      <!-- Create the jar -->
+      <jar  destfile="${BUILD_DIR}/${JAR_FILE}"
+            manifest="${RES_DIR}/META-INF/MANIFEST.MF"
+            basedir="${CLASSES}"/>
+   </target>
+
+   <!-- Hot deploy the jar bundle after building it. -->
+   <target name="deploy-bundle" depends="make-jar-bundle">
+      <copy todir="${VSPHERE_SDK_HOME}/vsphere-ui/server/pickup/"
+            file="${BUILD_DIR}/${JAR_FILE}">
+      </copy>
+   </target>
+
+</project>
+

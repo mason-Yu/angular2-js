@@ -1,0 +1,13 @@
+<nav class="subnav">
+  <ul class="nav">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="nav.getViewType() === 'summary'" href="javascript://"
+         (click)="nav.showObjectView(objectId, objectType, 'summary')">Summary</a></li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="nav.getViewType() === 'monitor'" href="javascript://"
+         (click)="nav.showObjectView(objectId, objectType, 'monitor')">Monitor</a></li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="nav.getViewType() === 'manage'" href="javascript://"
+         (click)="nav.showObjectView(objectId, objectType, 'manage')">Configure</a></li>
+  </ul>
+</nav>

@@ -1,0 +1,81 @@
+
+
+{ "app.name": "__pluginName__",
+"app.mainView": "__pluginName__ Vue Principale",
+"app.settingView": "__pluginName__ Vue Paramètres",
+"settings": "Paramètres",
+
+"sampleAction1.name": "Action1 - dialogue",
+"sampleAction2.name": "Action2 - wizard",
+"sampleAction3.name": "Action3 - sans UI",
+"sampleMenu.label": "Actions __pluginName__ ",
+
+
+
+"button.ok": "Ok",
+"button.cancel": "Annuler",
+
+"mainView.serviceTest": "Test du service",
+"mainView.clickToCall": "Cliquer pour appeler EchoService",
+"mainView.helloBtn1": "Bonjour (popup)",
+"mainView.helloBtn2": "Bonjour (modal)",
+"mainView.world": "le Monde!",
+"mainView.echoResponse": "Réponse de l'écho",
+"mainView.popup1.text": "(Cette fenêtre est modale à l'interieur de la vue)",
+"mainView.popup2.text": "(Cette fenêtre est modale pour tout vSphere Client)",
+"mainView.content": "Ajouter le contenu de la vue principale ici.",
+"settingsView.content": "Ajouter le contenu des paramètres ici.",
+
+"gotoSettings": "Voir Paramètres",
+"gotoMainView": "Voir Vue Principale",
+"gotoSummary": "Voir Résumé",
+"gotoMonitor": "Voir Surveiller",
+"gotoConfigure": "Voir Configurer",
+
+"monitorView": "__pluginName__ vue Surveiller pour {0}",
+"manageView": "__pluginName__ vue Configurer pour {0}",
+"summaryView": "__pluginName__ portlet Résumé",
+"summaryView.content": "Ajouter le contenu pour hôte id: {0}",
+
+"host.name": "Nom",
+"host.status": "Statut",
+"host.model": "Modèle",
+"host.vms": "Machines Virtuelles",
+
+
+"chassisLabel": "Chassis",
+"chassisPlural": "Chassis",
+"chassis.monitor.view1": "Vue Surveiller 1",
+"chassis.manage.view1": "Vue Configurer 1",
+
+"addDetails": "Ajouter contenu...",
+"summary.title": "Résumé pour {0}",
+"summary.mainInfo": "{0} Info Principale",
+"summary.name": "Nom: {0}",
+"summary.dimensions": "Dimensions: {0}",
+"summary.serverType": "Type de serveur: {0}",
+"summary.health": "Santé",
+"summary.compliance": "Conformité",
+"edit.chassis": "Editer {0}",
+"useLeftMenu": "Utiliser le menu gauche sur chaque rangée pour modifier ou enlever un chassis",
+"header.name": "Nom",
+"header.dimensions": "Dimensions",
+"header.serverType": "Type de serveur",
+"menu.goto": "Aller à",
+"menu.edit": "Editer",
+"menu.delete": "Enlever",
+"config.portlet": "Portlet Configuration",
+"monitor.portlet": "Portlet Surveillance",
+
+"chassis.deleteAction": "Enlever Chassis",
+"chassis.editAction": "Editer Chassis",
+"chassis.createAction": "Ajouter un Chassis",
+"createAction.nameTaken": "Un chassis nommé {0} existe déjà!",
+"editAction.notFound": "Le chassis n'existe pas sur le serveur.",
+"deleteAction.notFound": "Le chassis n'existe pas sur le serveur.",
+
+
+
+"addIcon": "Embed(\"../../assets/images/addIcon.png\")",
+"editIcon": "Embed(\"../../assets/images/editIcon.png\")",
+"removeIcon": "Embed(\"../../assets/images/removeIcon.png\")" }

@@ -1,0 +1,10 @@
+<app-header *ngIf="gs.showDevUI()" ></app-header>
+<div class="main-container">
+   <div class="content-container">
+      <div class="content-area">
+         <h3>This view is not implemented yet :-(</h3>
+         <a *ngIf="gs.showDevUI() && !gs.showViewInfo()" (click)="gs.toggleViewInfo()" class="btn btn-link">Show view info</a>
+      </div>
+      <sidenav *ngIf="gs.showSidenav()" style="order:-1;"></sidenav>
+   </div>
+</div>

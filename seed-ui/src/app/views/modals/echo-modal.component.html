@@ -1,0 +1,8 @@
+
+<div class="modal-body">
+   <p>{{echoMsg}}</p>
+   <p>{{i18n.translate("mainView.popup2.text")}}</p>
+</div>
+<div *ngIf="gs.isPluginMode()" class="plugin-modal-footer">
+   <button type="submit" class="btn btn-primary" (click)="onSubmit()">{{i18n.translate("button.ok")}}</button>
+</div>

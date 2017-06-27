@@ -1,0 +1,46 @@
+<app-alert></app-alert>
+
+<!-- Dev mode header -->
+<app-header *ngIf="gs.showDevUI()" ></app-header>
+
+<div class="main-container">
+  <div class="content-container">
+
+    <div class="content-area">
+      <p style="padding-bottom: 10px">{{i18n.translate("settingsView.content")}}</p>
+      <div class="card-columns card-columns-2">
+        <div *ngIf="gs.isLocalhostDevMode()" class="card clickable">
+          <div class="card-header">
+            Live Data Setup
+          </div>
+          <div class="card-block">
+            Get or set a vSphere Client session id for Live data:<br/>
+            <a (click)="clientidComponent.show()" class="btn">{{ gs.isPluginMode() ? "Get":"Set" }} Client Id</a>
+          </div>
+          <div class="card-block">
+            Turn Mock data on/off in plugin mode:<br/>
+            <span *ngIf="!gs.useLiveData()" style="color:red">
+              This requires http-proxy-servlet-plugin, see documentation!</span><br/>
+            <div class="toggle-switch">
+              <input type="checkbox" id="mockData" (click)="gs.toggleLiveData()" [checked]="!gs.useLiveData()">
+              <label for="mockData">Mock data</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a (click)="nav.showMainView()" class="btn btn-link">{{i18n.translate("gotoMainView")}}</a>
+
+      <div *ngIf="gs.showDevUI()" class="dev-ui">
+        <clr-icon shape="info" size="24"></clr-icon>
+          This is the plugin's settings view, used for administration tasks.
+      </div>
+    </div>
+    <!-- Dev mode sidenav to facilitate object navigation -->
+    <sidenav *ngIf="gs.showSidenav()" style="order:-1;"></sidenav>
+
+  </div>
+</div>
+<clientid-setup *ngIf="gs.isLocalhostDevMode()"></clientid-setup>
+
+
+

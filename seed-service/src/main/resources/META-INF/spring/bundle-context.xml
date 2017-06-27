@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:mvc="http://www.springframework.org/schema/mvc"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xsi:schemaLocation="
+      http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/mvc
+      http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+   <bean name="EchoServiceImpl" class="__packageName__.services.EchoServiceImpl"/>
+
+   <bean name="SampleActionServiceImpl" class="__packageName__.services.SampleActionServiceImpl">
+        <constructor-arg index="0" ref="vimObjectReferenceService"/>
+   </bean>
+
+   <!-- [removable-chassis-code] -->
+
+   <bean name="chassisDataAdapterImpl"
+         class="__packageName__.services.ChassisDataAdapter">
+      <constructor-arg index="0" ref="dataService"/>
+      <constructor-arg index="1" ref="modelObjectUriResolver"/>
+      <constructor-arg index="2" ref="vimObjectReferenceService"/>
+      <constructor-arg index="3" ref="objectStore"/>
+   </bean>
+
+   <bean name="chassisServiceImpl"
+         class="__packageName__.services.ChassisServiceImpl">
+      <constructor-arg index="0" ref="modelObjectUriResolver"/>
+      <constructor-arg index="1" ref="objectStore"/>
+   </bean>
+
+   <bean name="modelObjectUriResolver"
+         class="__packageName__.ModelObjectUriResolver"/>
+
+   <!-- The bean used to register/unregister modelObjectUriResolver, done
+         automatically when the bundle is started or stopped.
+      arg0: a reference to the ResourceTypeResolverRegistry (in bundle-context-osgi)
+      arg1: the URI scheme or prefix value (it must match the value in the resolver!)
+      arg2: a reference to the modelObjectUriResolver bean above
+   -->
+   <bean name="uriSchemeInitializer" class="com.vmware.vise.data.uri.UriSchemeInitializer"
+         destroy-method="close">
+      <constructor-arg index="0" ref="resourceTypeResolverRegistry" />
+      <constructor-arg index="1" value="urn:cr" />
+      <constructor-arg index="2" ref="modelObjectUriResolver" />
+   </bean>
+
+
+   <bean name="objectStore"
+         class="__packageName__.services.ObjectStore"
+         init-method="init" destroy-method="destroy">
+      <constructor-arg index="0" ref="modelObjectUriResolver"/>
+   </bean>
+   <!-- [end-chassis-code] -->
+</beans>

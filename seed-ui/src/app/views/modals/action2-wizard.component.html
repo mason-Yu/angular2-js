@@ -1,0 +1,71 @@
+<clr-wizard #wizard
+            [clrWizardClosable]="false"
+            [clrWizardSize]="'lg'"
+            (clrWizardOnCancel)="onCancel()"
+            [clrWizardPreventModalAnimation]="true">
+   <clr-wizard-title *ngIf="!gs.isPluginMode()">{{title}}</clr-wizard-title>
+
+   <clr-wizard-button type="cancel">Cancel</clr-wizard-button>
+   <clr-wizard-button type="previous">Back</clr-wizard-button>
+   <clr-wizard-button type="next">Next</clr-wizard-button>
+   <clr-wizard-button type="finish">Finish</clr-wizard-button>
+
+   <!-- Step 1 page -->
+
+   <clr-wizard-page [clrWizardPageNextDisabled]="!thisForm.form.valid">
+      <ng-template clrPageTitle>Step 1</ng-template>
+
+      <form class="compact" #thisForm="ngForm">
+         <section class="form-block">
+            <label>Form parameters sent as action arguments:</label>
+            <div class="form-group">
+               <label  class="required">Parameter 1</label>
+               <!-- Clarity input validation uses tooltip to show an error (class set to 'invalid').
+                    Angular built-in validators used to check non-empty, non-space-first and max length -->
+               <label role="tooltip"
+                      class="tooltip tooltip-top-left tooltip-validation {{name.valid ? '':'invalid'}} tooltip-md">
+                  <input type="text" [(ngModel)]="formData.param1" name="param1" #name="ngModel" size="31"
+                         required pattern="\S.*" maxlength="40">
+                  <span class="tooltip-content">Parameter 1 cannot be empty!</span>
+               </label>
+            </div>
+            <div class="form-group">
+               <label>Parameter 2</label>
+               <input type="text" [(ngModel)]="formData.param2" name="param2" size="35">
+            </div>
+            <div class="form-group">
+               <label>Parameter 3</label>
+               <div class="select">
+                  <select name="select" [(ngModel)]="formData.param3">
+                     <option value="typeA">Type A</option>
+                     <option value="typeB">Type B</option>
+                     <option value="typeC">Type C</option>
+                     <option value="typeD">Type D</option>
+                  </select>
+               </div>
+            </div>
+         </section>
+      </form>
+   </clr-wizard-page>
+
+   <!-- Step 2 and 3 pages are empty -->
+
+   <clr-wizard-page>
+      <ng-template clrPageTitle>Step 2</ng-template>
+      <!--<ng-template clrPageNavTitle>Step 2</ng-template>-->
+      Content for step 2
+   </clr-wizard-page>
+   <clr-wizard-page>
+      <ng-template clrPageTitle>Step 3</ng-template>
+      <!--<ng-template clrPageNavTitle>Step 3</ng-template>-->
+      Content for step 3
+   </clr-wizard-page>
+
+   <!-- Summary (last) page used to review user input -->
+
+   <clr-wizard-page (clrWizardPageOnCommit)="onCommit()">
+      <ng-template clrPageTitle>Summary</ng-template>
+      <!--<ng-template clrPageNavTitle>Summary</ng-template>-->
+      Summary of changes before hitting Finish
+   </clr-wizard-page>
+</clr-wizard>
