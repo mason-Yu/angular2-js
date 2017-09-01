@@ -33,16 +33,9 @@ export class NavService {
                private router: Router) {
    }
 
-   // public edit(id: string): void {
-   //    this.router.navigate(["/editor", id]);
-   // }
+   showView(viewPage: string): void {
+       this.navigate(APP_CONFIG.packageName + "." + viewPage);
 
-   showMainView(): void {
-      this.navigate(APP_CONFIG.packageName + ".mainView");
-   }
-
-   showSettingsView(): void {
-      this.navigate(APP_CONFIG.packageName + ".settingsView");
    }
 
    /**

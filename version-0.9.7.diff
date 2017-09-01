@@ -1,0 +1,2860 @@
+This is the DIFF between version 0.9.5 and 0.9.7
+Use it to see in details what change!
+
+diff --git a/seed-service/src/main/java/__packageName__/mvc/ActionsController.java b/seed-service/src/main/java/__packageName__/mvc/ActionsController.java
+index 14eeede..f8d82f7 100644
+--- a/seed-service/src/main/java/__packageName__/mvc/ActionsController.java
++++ b/seed-service/src/main/java/__packageName__/mvc/ActionsController.java
+@@ -26,7 +26,7 @@ import __packageName__.services.SampleActionService;
+ import __packageName__.model.ChassisInfo;
+ import __packageName__.services.ChassisDataAdapter;
+ import __packageName__.services.ChassisService;
+-
++// [end-chassis-code]
+ import com.vmware.vise.data.query.ObjectReferenceService;
+ 
+ 
+@@ -42,17 +42,17 @@ public class ActionsController {
+    private final String RESOURCE_BUNDLE = "__bundleName__";
+ 
+    private final SampleActionService _actionService;
+-   private final ChassisService _chassisService;
++   private final ChassisService _chassisService;   // [removable-chassis-line]
+ 
+    private final ObjectReferenceService _objectReferenceService;
+ 
+    @Autowired
+    public ActionsController(
+          SampleActionService actionService,
+-         ChassisService chassisService,
++         ChassisService chassisService,         // [removable-chassis-line]
+          @Qualifier("objectReferenceService") ObjectReferenceService objectReferenceService) {
+       _actionService = actionService;
+-      _chassisService = chassisService;
++      _chassisService = chassisService;         // [removable-chassis-line]
+       _objectReferenceService = objectReferenceService;
+       QueryUtil.setObjectReferenceService(objectReferenceService);
+    }
+@@ -61,7 +61,7 @@ public class ActionsController {
+    // where the bean is declared
+    public ActionsController() {
+       _actionService = null;
+-      _chassisService = null;
++      _chassisService = null;       // [removable-chassis-line]
+       _objectReferenceService = null;
+    }
+ 
+@@ -107,6 +107,7 @@ public class ActionsController {
+          }
+       }
+ 
++      // [removable-chassis-code]
+       if (actionUid.equals("__packageName__.editChassis") ||
+             actionUid.equals("__packageName__.deleteChassis") ||
+             actionUid.equals("__packageName__.createChassis")) {
+@@ -116,6 +117,7 @@ public class ActionsController {
+          }
+          return handleChassisActions(actionUid, (URI)objectRef, json);
+       }
++      // [end-chassis-code]
+ 
+       // ------------ Samples actions under the Host menu ----------------
+ 
+@@ -177,6 +179,7 @@ public class ActionsController {
+       }
+       return actionResult.getJsonMap();
+    }
++   // [end-chassis-code]
+ 
+    /**
+     * Generic handling of internal exceptions.
+diff --git a/seed-service/src/main/resources/META-INF/spring/bundle-context-osgi.xml b/seed-service/src/main/resources/META-INF/spring/bundle-context-osgi.xml
+index 758588f..b365da8 100644
+--- a/seed-service/src/main/resources/META-INF/spring/bundle-context-osgi.xml
++++ b/seed-service/src/main/resources/META-INF/spring/bundle-context-osgi.xml
+@@ -24,6 +24,7 @@
+                  interface="__packageName__.services.ChassisService"/>
+    <osgi:service id="chassisDataAdapter" ref="chassisDataAdapterImpl"
+                  interface="com.vmware.vise.data.query.DataProviderAdapter" />
++   <!-- [end-chassis-code] -->
+ 
+   <!-- References to platform services used by the controllers -->
+ 
+diff --git a/seed-service/src/main/resources/META-INF/spring/bundle-context.xml b/seed-service/src/main/resources/META-INF/spring/bundle-context.xml
+index e4e0a1a..6521f98 100644
+--- a/seed-service/src/main/resources/META-INF/spring/bundle-context.xml
++++ b/seed-service/src/main/resources/META-INF/spring/bundle-context.xml
+@@ -18,6 +18,7 @@
+    </bean>
+ 
+    <!-- [removable-chassis-code] -->
++
+    <bean name="chassisDataAdapterImpl"
+          class="__packageName__.services.ChassisDataAdapter">
+       <constructor-arg index="0" ref="dataService"/>
+@@ -26,7 +27,6 @@
+       <constructor-arg index="3" ref="objectStore"/>
+    </bean>
+ 
+-   <!-- [removable-chassis-code] -->
+    <bean name="chassisServiceImpl"
+          class="__packageName__.services.ChassisServiceImpl">
+       <constructor-arg index="0" ref="modelObjectUriResolver"/>
+@@ -55,4 +55,5 @@
+          init-method="init" destroy-method="destroy">
+       <constructor-arg index="0" ref="modelObjectUriResolver"/>
+    </bean>
++   <!-- [end-chassis-code] -->
+ </beans>
+diff --git a/seed-service/tools/build-java.bat b/seed-service/tools/build-java.bat
+index 5450ae8..cba86b5 100755
+--- a/seed-service/tools/build-java.bat
++++ b/seed-service/tools/build-java.bat
+@@ -16,6 +16,6 @@ REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
+    goto end
+ )
+ 
+-@call "%ANT_HOME%\bin\ant" -f build-java.xml
++@call "%ANT_HOME%\bin\ant" -f %~dp0\build-java.xml
+ 
+ :end
+diff --git a/seed-service/tools/build-java.sh b/seed-service/tools/build-java.sh
+index d211a7e..201b0be 100755
+--- a/seed-service/tools/build-java.sh
++++ b/seed-service/tools/build-java.sh
+@@ -14,6 +14,7 @@ then
+    exit 1
+ fi
+ 
+-"${ANT_HOME}"/bin/ant -f build-java.xml
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -f $toolsDir/build-java.xml
+ 
+ exit 0
+diff --git a/seed-service/tools/deploy-jar.bat b/seed-service/tools/deploy-jar.bat
+index badec44..6390425 100755
+--- a/seed-service/tools/deploy-jar.bat
++++ b/seed-service/tools/deploy-jar.bat
+@@ -16,6 +16,6 @@ REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
+    goto end
+ )
+ 
+-@call "%ANT_HOME%\bin\ant" -f build-java.xml deploy-bundle
++@call "%ANT_HOME%\bin\ant" -f %~dp0\build-java.xml deploy-bundle
+ 
+ :end
+diff --git a/seed-service/tools/deploy-jar.sh b/seed-service/tools/deploy-jar.sh
+index 027eb5b..4f0ab2c 100755
+--- a/seed-service/tools/deploy-jar.sh
++++ b/seed-service/tools/deploy-jar.sh
+@@ -14,6 +14,7 @@ then
+    exit 1
+ fi
+ 
+-"${ANT_HOME}"/bin/ant -f build-java.xml deploy-bundle
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -f $toolsDir/build-java.xml deploy-bundle
+ 
+ exit 0
+diff --git a/seed-service/tools/remove-chassis-code.sh b/seed-service/tools/remove-chassis-code.sh
+new file mode 100755
+index 0000000..feabd29
+--- /dev/null
++++ b/seed-service/tools/remove-chassis-code.sh
+@@ -0,0 +1,22 @@
++#!/bin/sh
++
++toolsDir=`dirname $0`
++echo "Remove all chassis related code in this project? Y or N [N]"
++read response
++if [[ $response == "y" || $response == "Y" ]]; then
++   # Remove chassis specific files
++   find $toolsDir/../src -name 'Chassis*' -exec rm -f {} \;
++   find $toolsDir/../src -name 'ModelObject.java' -exec rm -f {} \;
++   find $toolsDir/../src -name 'ObjectStore.java' -exec rm -f {} \;
++   find $toolsDir/../src -name 'ModelObjectUriResolver.java' -exec rm -f {} \;
++   find $toolsDir/../src -name 'ResultItemComparator.java' -exec rm -f {} \;
++
++   # Remove chassis code in all other files (.ts, .html, .xml, .properties only)
++   find $toolsDir/../src -type f \( -name '*.java' -o -name '*.xml' \) \
++   -exec sed -i '' -e '/removable-chassis-line/d' -e '/removable-chassis-code/,/end-chassis-code/d' {} \;
++
++else
++   echo "-> stopped"
++   exit 1
++fi
++
+diff --git a/seed-ui/README.md b/seed-ui/README.md
+index ffa9d75..b60485a 100644
+--- a/seed-ui/README.md
++++ b/seed-ui/README.md
+@@ -21,7 +21,7 @@ Getting started
+ npm install
+ 
+ # start json-server to get mock data and load local message bundles
+-json-server --watch db.json --static ./src/webapp
++npm run json-server
+ 
+ # run the plugin in dev mode and watches your files for live-reload
+ ng serve
+@@ -129,7 +129,7 @@ ng help
+ │   └── styles.css            <- global styles
+ ├── karma.conf.js             <- configuration of the test runner
+ ├── target                    <- output dir for the plugin build
+-├── tools                     <- plugin build scripts
++├── tools                     <- plugin build scripts and plugin-package.xml templates
+ ├
+ ├── angular-cli.json          <- Angular-CLI configuration
+ ├── db.json                   <- Mock data used with json-server
+diff --git a/seed-ui/e2e/app.e2e-spec.ts b/seed-ui/e2e/app.e2e-spec.ts
+new file mode 100644
+index 0000000..21d4090
+--- /dev/null
++++ b/seed-ui/e2e/app.e2e-spec.ts
+@@ -0,0 +1,37 @@
++import { UiPluginPage } from './app.po';
++import { browser, element, by } from "protractor";
++
++describe('cli-project App', () => {
++   let page: UiPluginPage;
++   const expectedTitle = '__pluginName__ (dev mode)';
++
++   beforeEach(() => {
++      page = new UiPluginPage();
++   });
++
++   it('should have the title: ' + expectedTitle, () => {
++      page.navigateTo();
++      expect<any>(page.getHeaderTitle()).toEqual(expectedTitle);
++   });
++
++   it('should start with the home page tag', () => {
++      page.navigateTo();
++      expect<any>(page.getTabFirstParagraph()).toEqual('Add your main view content here.');
++   });
++
++   it('should open a popup in the EchoService tab', () => {
++      page.navigateTo();
++      page.getButtonByText("Echo Service").click();
++      element(by.id('helloBtn1')).click();
++      expect<any>(page.getOpenModalElement()).toBeTruthy();
++      expect<any>(page.getOpenModalTitle()).toBe("Echo Response");
++   });
++
++   it('should navigate to the Settings page after button click', () => {
++      page.navigateTo();
++      page.getButtonByText("Home").click();
++      page.getFirstBtnLink().click();
++      browser.waitForAngular();
++      expect<any>(page.getContentFirstParagraph()).toEqual('Add your settings content here.');
++   });
++});
+diff --git a/seed-ui/e2e/app.po.ts b/seed-ui/e2e/app.po.ts
+new file mode 100644
+index 0000000..354e5a6
+--- /dev/null
++++ b/seed-ui/e2e/app.po.ts
+@@ -0,0 +1,49 @@
++import { browser, element, by } from 'protractor';
++
++export class UiPluginPage {
++   navigateTo() {
++      return browser.get('/');
++   }
++
++   getHeaderTitle() {
++      return element(by.css('my-app header .branding')).getText();
++   }
++
++   getTabFirstParagraph() {
++      return element.all(by.css('clr-tab-content p')).first().getText();
++   }
++
++   getContentFirstParagraph() {
++      return element.all(by.css('.content-area p')).first().getText();
++   }
++
++   getButtonByText(text) {
++      return element(by.buttonText(text));
++   }
++
++   getLinkByText(text) {
++      return element(by.linkText(text));
++   }
++
++   getOpenModalElement() {
++      return element(by.css('.modal-dialog'));
++   }
++
++   getOpenModalTitle() {
++      return element(by.css('.modal-dialog .modal-title')).getText();
++   }
++
++   getFirstBtnLink() {
++      return element.all(by.css('clr-tab-content .btn-link')).first();
++   }
++
++   doubleClickFirstRow() {
++      // let row1 = element.all(by.css('.content-area .row')).get(1).getWebElement().getText();
++      // console.log("*** " + row1);
++      // element.all(by.css('.content-area .row')).get(1).doubleClick();
++      element.all(by.css('.content-area .row')).then(function(items) {
++         // console.log("*** " + items[1].getWebElement().getText());
++         browser.actions().doubleClick(items[1]).perform();
++      });
++   }
++}
+diff --git a/seed-ui/gulpfile.js b/seed-ui/gulpfile.js
+index 8378510..994e966 100644
+--- a/seed-ui/gulpfile.js
++++ b/seed-ui/gulpfile.js
+@@ -30,35 +30,15 @@ gulp.task('watch', function() {
+    const uiWarFolder = getDeployedArtifactPath(UI_BUNDLE_NAME);
+    if (!uiWarFolder) {
+       console.log("*** " + UI_BUNDLE_NAME + " is not deployed under " + getDevServerPath() + "! Or the server is not running");
+-      console.log("*** deploy the plugin package first, then use 'gulp watch' to update UI files");
++      console.log("*** Deploy the plugin package first, then use 'gulp watch' to update UI files");
+       return;
+    }
+    console.log("Watching for UI changes and copying files directly to folder = " + uiWarFolder);
++   console.log("*** This may need to be restarted if the Virgo server is restarted ***");
+ 
+-   gulp.watch(['src/app/**/*', '!src/app/**/*.spec.ts'], function() {
+-      console.log('Detected change in src/app/**/*, rebuilding app...');
+-
+-      // Note: we spawn an "ng build" command to rebuild the UI, this takes a few seconds
+-      //       The --aot flag is required when using lazy loading components like SettingsComponent here
+-      //       Add the --prod flag to see the difference with a production build.
+-      // const ng = spawn('ng', ['build', '--prod','--aot']);
+-      const ng = spawn('ng', ['build']);
+-      ng.stdout.on('data', (data) => {
+-         console.log(`stdout: ${data}`);
+-   });
+-      // ng.stderr.on('data', (data) => {
+-      //    console.log(`stderr: ${data}`);
+-      // });
+-      ng.on('close', (code) => {
+-         if (code === 0) {
+-         // Copy dest files to Virgo runtime
+-         gulp.src('dist/**/*', { base: 'dist' })
+-               .pipe(gulp.dest(uiWarFolder));
+-         console.log("UI updated at " + uiWarFolder);
+-      } else {
+-         console.log(`Build error! code ${code}`);
+-      }
+-   });
++   const ng = spawn('ng', ['build', '--watch', '--output-path', uiWarFolder ]);
++   ng.stdout.on('data', (data) => {
++      console.log(`UI build updated on ${new Date()}: \n${data}`);
+    });
+ 
+    gulp.watch('src/assets/**/*', function(event) {
+diff --git a/seed-ui/json-server-routes.json b/seed-ui/json-server-routes.json
+new file mode 100644
+index 0000000..329eec0
+--- /dev/null
++++ b/seed-ui/json-server-routes.json
+@@ -0,0 +1,3 @@
++{
++  "/services/echo": "/echos"
++}
+\ No newline at end of file
+diff --git a/seed-ui/package.json b/seed-ui/package.json
+index 4a8a999..21f8c54 100644
+--- a/seed-ui/package.json
++++ b/seed-ui/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "__pluginName__",
+-  "version": "0.9.5",
++  "version": "0.9.7",
+   "description": "HTML Client plugin using Angular2-Clarity stack",
+   "angular-cli": {},
+   "scripts": {
+@@ -11,7 +11,7 @@
+     "test": "ng test",
+     "lint": "ng lint",
+     "e2e": "ng e2e",
+-    "json-server": "json-server --watch db.json --static ./src/webapp"
++    "json-server": "json-server --watch db.json --static ./src/webapp --routes json-server-routes.json"
+   },
+   "private": true,
+   "engines": {
+@@ -19,21 +19,21 @@
+     "npm": ">= 3.0.0"
+   },
+   "dependencies": {
+-    "@angular/animations": "^4.0.0",
+-    "@angular/common": "^4.0.0",
+-    "@angular/compiler": "^4.0.0",
+-    "@angular/core": "^4.0.0",
+-    "@angular/forms": "^4.0.0",
+-    "@angular/http": "^4.0.0",
+-    "@angular/platform-browser": "^4.0.0",
+-    "@angular/platform-browser-dynamic": "^4.0.0",
+-    "@angular/router": "^4.0.0",
++    "@angular/animations": "^4.1.0",
++    "@angular/common": "^4.1.0",
++    "@angular/compiler": "^4.1.0",
++    "@angular/core": "^4.1.0",
++    "@angular/forms": "^4.1.0",
++    "@angular/http": "^4.1.0",
++    "@angular/platform-browser": "^4.1.0",
++    "@angular/platform-browser-dynamic": "^4.1.0",
++    "@angular/router": "^4.1.0",
+     "@angular/tsc-wrapped": ">=0.5.0 <5.0.0",
+     "@webcomponents/custom-elements": "1.0.0-alpha.3",
+     "angular-in-memory-web-api": "0.3.1",
+-    "clarity-angular": "^0.9.0",
+-    "clarity-icons": "^0.9.0",
+-    "clarity-ui": "^0.9.0",
++    "clarity-angular": "^0.9.3",
++    "clarity-icons": "^0.9.3",
++    "clarity-ui": "^0.9.3",
+     "core-js": "^2.4.1",
+     "mutationobserver-shim": "^0.3.2",
+     "rxjs": "^5.1.0",
+@@ -42,7 +42,7 @@
+   },
+   "devDependencies": {
+     "@angular/cli": "^1.0.0",
+-    "@angular/compiler-cli": "^4.0.0",
++    "@angular/compiler-cli": "^4.1.0",
+     "@types/core-js": "^0.9.34",
+     "@types/jasmine": "^2.5.38",
+     "@types/node": "~6.0.60",
+diff --git a/seed-ui/src/app/app-routing.component.ts b/seed-ui/src/app/app-routing.component.ts
+index 80bb08a..da56761 100644
+--- a/seed-ui/src/app/app-routing.component.ts
++++ b/seed-ui/src/app/app-routing.component.ts
+@@ -33,7 +33,7 @@ export class AppRoutingComponent implements OnInit, OnDestroy {
+             const view = param["view"];
+             let objectId = param["objectId"];
+             const actionUid = param["actionUid"];
+-            const targets = param["targets"];
++            let targets = param["targets"];
+             const locale = param["locale"];
+             const params = {};
+ 
+@@ -49,6 +49,10 @@ export class AppRoutingComponent implements OnInit, OnDestroy {
+                // Action URL's targets contains the objectId or null for a global action
+                params["actionUid"] = actionUid;
+                if (targets) {
++                  if (targets.indexOf(",") >= 0) {
++                     console.error("Multiple objects not supported in actions!  Will use the 1st id in: " + targets);
++                     targets = targets.substring(0, targets.indexOf(","));
++                  }
+                   objectId = targets.replace(FORWARD_SLASH_ENCODED, FORWARD_SLASH_ENCODED2);
+                } else if (!objectId || objectId === "null") {
+                   objectId = "undefined";
+diff --git a/seed-ui/src/app/app-routing.module.ts b/seed-ui/src/app/app-routing.module.ts
+index 8b1e492..62fc65a 100644
+--- a/seed-ui/src/app/app-routing.module.ts
++++ b/seed-ui/src/app/app-routing.module.ts
+@@ -7,9 +7,12 @@ import { MainComponent }  from "./views/main/index";
+ import { MonitorComponent } from "./views/monitor/index";
+ import { SummaryComponent } from "./views/summary/summary.component";
+ import { Action1ModalComponent, Action2WizardComponent,
+-         EchoModalComponent, EditChassisComponent } from "./views/modals/index";
+-import { ChassisSummaryComponent } from "./views/chassis-summary/chassis-summary.component";
++         EchoModalComponent } from "./views/modals/index";
+ import { NYIComponent } from "./views/not-implemented-yet/nyi.component";
++// [removable-chassis-code]
++import { EditChassisComponent } from "./views/modals/edit-chassis.component";
++import { ChassisSummaryComponent } from "./views/chassis-summary/chassis-summary.component";
++// [end-chassis-code]
+ 
+ /**
+  * Supported routes and associated components
+@@ -47,6 +50,7 @@ const appRoutes: Routes = [
+    { path: "chassis-monitor/:id",   component: NYIComponent },
+    { path: "chassis-manage/:id",    component: NYIComponent },
+    { path: "edit-chassis/:id/:actionUid",   component: EditChassisComponent }
++   // [end-chassis-code]
+ ];
+ 
+ /**
+@@ -62,6 +66,7 @@ extensionToRoutes[APP_CONFIG.packageName + ".host.manageView" ]   = "/manage";
+ extensionToRoutes[APP_CONFIG.packageName + ".chassis.summaryView" ]  = "/chassis-summary";
+ extensionToRoutes[APP_CONFIG.packageName + ".chassis.monitorView" ]  = "/chassis-monitor";
+ extensionToRoutes[APP_CONFIG.packageName + ".chassis.manageView" ]   = "/chassis-manage";
++// [end-chassis-code]
+ 
+ /**
+  * List of routed components above, for easy inclusion in app-module
+@@ -77,6 +82,7 @@ export const routedComponents = [
+    // [removable-chassis-code]
+    ChassisSummaryComponent,
+    EditChassisComponent,
++   // [end-chassis-code]
+    NYIComponent
+ ];
+ 
+diff --git a/seed-ui/src/app/app.component.html b/seed-ui/src/app/app.component.html
+index bcc5b2f..0a47a9a 100644
+--- a/seed-ui/src/app/app.component.html
++++ b/seed-ui/src/app/app.component.html
+@@ -1,5 +1,5 @@
+ <!-- Top left floating icon used to toggle the dev UI components in all views -->
+-<div *ngIf="!gs.isPluginMode()" class="floating-left">
++<div *ngIf="!gs.isPluginMode()" style="float: left; position: absolute; z-index: 3;">
+    <a (click)="gs.toggleDevUI()" class="tooltip tooltip-sm tooltip-bottom-right"
+       role="tooltip" aria-haspopup="true" href="javascript://">
+       <clr-icon [attr.shape]="gs.showDevUI() ? 'remove' : 'plus-circle'" size="16"
+diff --git a/seed-ui/src/app/app.component.scss b/seed-ui/src/app/app.component.scss
+index 4450e5f..30c37c4 100644
+--- a/seed-ui/src/app/app.component.scss
++++ b/seed-ui/src/app/app.component.scss
+@@ -1,12 +1,22 @@
+-.plugin-modal-footer {
+-  @extend .modal-footer !optional;
+-  display: flex;
+-  justify-content: flex-end;
+-  padding-top: 24px;
++// WARNING: these styles are shared with all child components because the flag
++//          encapsulation: ViewEncapsulation.None is set in app.component.ts
++
++// Shared style to display sidenav correctly
++.td-sidenav {
++  vertical-align: top;
++  padding: 0px;
++  background-color: #CFD8DC
++}
++
++// Shared style to display subnav correctly
++.td-subnav {
++  vertical-align: top;
++  width: 100%;
++  padding: 0px;
+ }
+ 
+-.floating-left {
+-  float: left;
+-  position: absolute;
+-  z-index: 3;
++// Lower opacity for dev-ui only elements
++.dev-ui {
++  padding-top: 20px;
++  opacity: 0.6;
+ }
+diff --git a/seed-ui/src/app/app.component.ts b/seed-ui/src/app/app.component.ts
+index 23bef78..9f3dace 100644
+--- a/seed-ui/src/app/app.component.ts
++++ b/seed-ui/src/app/app.component.ts
+@@ -1,21 +1,22 @@
+-import {Component, Injector, enableProdMode} from "@angular/core";
++import { Component, Injector, ViewEncapsulation, ChangeDetectorRef } from "@angular/core";
+ 
+ import { GlobalsService, RefreshService, I18nService }   from "./shared/index";
+ import { ActionDevService } from "./services/testing/action-dev.service";
+-import { environment } from "../environments/environment";
+ 
+ @Component({
+    selector: "my-app",
+    styleUrls: ["./app.component.scss"],
+    templateUrl: "./app.component.html",
+-   providers: [ ]
++   providers: [ ],
++   encapsulation: ViewEncapsulation.None
+ })
+ export class AppComponent {
+ 
+    constructor(public  gs: GlobalsService,
+                private injector: Injector,
+                private refreshService: RefreshService,
+-               private i18nService: I18nService) {
++               private i18nService: I18nService,
++               private changeDetector: ChangeDetectorRef) {
+ 
+       // Refresh handler to be used in plugin mode
+       this.gs.getWebPlatform().setGlobalRefreshHandler(this.refresh.bind(this), document);
+@@ -31,6 +32,14 @@ export class AppComponent {
+    }
+ 
+    refresh(): void {
++      // This propagates the refresh event to views that have subscribed to the RefreshService
+       this.refreshService.refreshView();
++
++      if (this.gs.isPluginMode()) {
++         // This helps refresh the app's children components in Plugin mode after refreshView,
++         // but this is not enough for asynchronous code => see how detectChanges() is also called
++         // in data functions in monitor.component.ts, main.component.ts, etc.
++         this.changeDetector.detectChanges();
++      }
+    }
+ }
+diff --git a/seed-ui/src/app/app.module.ts b/seed-ui/src/app/app.module.ts
+index 7a81fa8..c38625a 100644
+--- a/seed-ui/src/app/app.module.ts
++++ b/seed-ui/src/app/app.module.ts
+@@ -24,6 +24,8 @@ import { SharedModule } from "./shared/shared.module";
+ import { ChassisService } from "./services/chassis/chassis.service";
+ import { InMemoryWebApiModule } from "angular-in-memory-web-api";
+ import { InMemoryDataService } from "./services/chassis/in-memory-data.service";
++// [end-chassis-code]
++import { UserSettingService } from "app/shared/user-settings.service";
+ 
+ 
+ @NgModule({
+@@ -35,8 +37,10 @@ import { InMemoryDataService } from "./services/chassis/in-memory-data.service";
+       AppRoutingModule,
+       SettingsModule,
+       SharedModule,
+-      // InMemoryDataService config: forward unrecognized requests and remove the default 500ms delay
++      // [removable-chassis-code]
++      // InMemoryDataService config: forward unrecognized requests + remove the default 500ms delay
+       InMemoryWebApiModule.forRoot(InMemoryDataService, { passThruUnknownUrl: true, delay: 0 })
++      // [end-chassis-code]
+    ],
+    declarations: [
+       AppComponent,
+@@ -48,7 +52,7 @@ import { InMemoryDataService } from "./services/chassis/in-memory-data.service";
+       ActionDevService,
+       AppAlertService,
+       AppErrorHandler,
+-      ChassisService,
++      ChassisService, // [removable-chassis-line]
+       EchoService,
+       Globals,
+       GlobalsService,
+@@ -56,6 +60,7 @@ import { InMemoryDataService } from "./services/chassis/in-memory-data.service";
+       I18nService,
+       NavService,
+       RefreshService,
++      UserSettingService,
+       {provide: ErrorHandler, useClass: AppErrorHandler}],
+    bootstrap: [AppComponent]
+ })
+diff --git a/seed-ui/src/app/services/chassis/chassis.service.spec.ts b/seed-ui/src/app/services/chassis/chassis.service.spec.ts
+index be1dfeb..ecdd333 100644
+--- a/seed-ui/src/app/services/chassis/chassis.service.spec.ts
++++ b/seed-ui/src/app/services/chassis/chassis.service.spec.ts
+@@ -13,6 +13,8 @@ import { fakeChassisData }   from "../testing/fake-chassis.service";
+ import { Globals, GlobalsService, APP_CONFIG, AppAlertService } from "../../shared/index";
+ import { AppErrorHandler } from "../../shared/appErrorHandler";
+ import { globalStub, appErrorHandlerStub } from "../../testing/index";
++import { userSettingServiceStub } from "../../testing/service-stubs";
++import { UserSettingService } from "../../shared/user-settings.service";
+ 
+ 
+ // ---------- Testing stubs ------------
+@@ -43,6 +45,7 @@ describe("ChassisService tests", () => {
+             { provide: AppErrorHandler, useValue: appErrorHandlerStub },
+             { provide: Globals, useValue: globalStub },
+             { provide: Router, useValue: routerStub },
++            { provide: UserSettingService, useValue: userSettingServiceStub },
+             { provide: XHRBackend, useClass: MockBackend }
+          ]
+       });
+diff --git a/seed-ui/src/app/services/echo.service.spec.ts b/seed-ui/src/app/services/echo.service.spec.ts
+index 7038cac..26b4622 100644
+--- a/seed-ui/src/app/services/echo.service.spec.ts
++++ b/seed-ui/src/app/services/echo.service.spec.ts
+@@ -10,6 +10,8 @@ import { Globals, GlobalsService } from "../shared/index";
+ import { globalStub, appErrorHandlerStub } from "../testing/index";
+ import { AppErrorHandler } from "../shared/appErrorHandler";
+ import { APP_CONFIG } from "../shared/app-config";
++import { UserSettingService } from "../shared/user-settings.service";
++import { userSettingServiceStub } from "../testing/service-stubs";
+ 
+ 
+ // ---------- Testing stubs ------------
+@@ -32,6 +34,7 @@ describe("EchoService tests", () => {
+          providers: [ EchoService, GlobalsService,
+             { provide: Globals, useValue: globalStub },
+             { provide: AppErrorHandler, useValue: appErrorHandlerStub },
++            { provide: UserSettingService, useValue: userSettingServiceStub },
+             { provide: XHRBackend, useClass: MockBackend }
+          ]
+       });
+diff --git a/seed-ui/src/app/services/host.service.spec.ts b/seed-ui/src/app/services/host.service.spec.ts
+index e76dc7e..e63e0e4 100644
+--- a/seed-ui/src/app/services/host.service.spec.ts
++++ b/seed-ui/src/app/services/host.service.spec.ts
+@@ -12,7 +12,8 @@ import { Globals, GlobalsService, AppAlertService } from "../shared/index";
+ import { AppErrorHandler } from "../shared/appErrorHandler";
+ import { globalStub, appErrorHandlerStub } from "../testing/index";
+ import { APP_CONFIG } from "../shared/app-config";
+-
++import { UserSettingService } from "../shared/user-settings.service";
++import { userSettingServiceStub } from "../testing/service-stubs";
+ 
+ // ---------- Testing stubs ------------
+ 
+@@ -38,6 +39,7 @@ describe("HostService tests", () => {
+             { provide: AppErrorHandler, useValue: appErrorHandlerStub },
+             { provide: Globals, useValue: globalStub },
+             { provide: Router, useValue: routerStub },
++            { provide: UserSettingService, useValue: userSettingServiceStub },
+             { provide: XHRBackend, useClass: MockBackend }
+          ]
+       });
+diff --git a/seed-ui/src/app/services/nav.service.spec.ts b/seed-ui/src/app/services/nav.service.spec.ts
+index 889b53b..d830ef6 100644
+--- a/seed-ui/src/app/services/nav.service.spec.ts
++++ b/seed-ui/src/app/services/nav.service.spec.ts
+@@ -6,6 +6,8 @@ import { Router } from "@angular/router";
+ import { NavService, ObjectViewType }     from "./index";
+ import { Globals, GlobalsService, APP_CONFIG } from "../shared/index";
+ import { globalStub, RouterStub } from "../testing/index";
++import { userSettingServiceStub } from "../testing/service-stubs";
++import { UserSettingService } from "../shared/user-settings.service";
+ 
+ 
+ // ---------- Testing stubs ------------
+@@ -26,7 +28,8 @@ describe("NavService", () => {
+          providers: [
+             NavService, GlobalsService,
+             { provide: Globals, useValue: globalStub },
+-            { provide: Router, useClass: RouterStub }
++            { provide: Router, useClass: RouterStub },
++            { provide: UserSettingService, useValue: userSettingServiceStub }
+          ]
+       });
+       navService = TestBed.get(NavService);
+diff --git a/seed-ui/src/app/shared/app-config.ts b/seed-ui/src/app/shared/app-config.ts
+index bba5212..7b40fd2 100644
+--- a/seed-ui/src/app/shared/app-config.ts
++++ b/seed-ui/src/app/shared/app-config.ts
+@@ -5,9 +5,10 @@ export interface AppConfig {
+    pluginName: string;
+    bundleName: string;
+    packageName: string;
++   version: string;
+ 
+    hostProperties: string[];
+-   chassisProperties: string[];  // [removable-chassis-code]
++   chassisProperties: string[]; // [removable-chassis-line]
+ }
+ 
+ export const APP_CONFIG: AppConfig = {
+@@ -25,9 +26,14 @@ export const APP_CONFIG: AppConfig = {
+    bundleName: "__bundleName__",
+    packageName: "__packageName__",
+ 
++   // Version number displayed in the top right corner of the app-header component.
++   // Initially it is the version of plugin-seed itself, you may change it to your own plugin version.
++   version: "0.9.7",
++
+    // List of properties for the Host monitor view
+    hostProperties: ["name", "overallStatus", "hardware.systemInfo.model", "vm"],
+ 
+-   // Chassis properties used in various views
++   // Chassis properties used in various views   [removable-chassis-code]
+    chassisProperties: ["name", "dimensions", "serverType"]
++   // [end-chassis-code]
+ };
+diff --git a/seed-ui/src/app/shared/appErrorHandler.ts b/seed-ui/src/app/shared/appErrorHandler.ts
+index e2f2945..00a500e 100644
+--- a/seed-ui/src/app/shared/appErrorHandler.ts
++++ b/seed-ui/src/app/shared/appErrorHandler.ts
+@@ -73,7 +73,11 @@ export class AppErrorHandler implements ErrorHandler {
+             // Remove extra lines (stack trace), they are available in the browser console or server log
+             errMsg += errorBody.message.replace(/\n.*/g, "");
+          } catch (e) {
+-            errMsg += error.text().replace(/\n.*/g, "");
++            if (!isPluginMode && useLiveData) {
++               errMsg += liveDataHelp;
++            } else {
++               errMsg += error.text().replace(/\n.*/g, "");
++            }
+          }
+ 
+       } else if (error.status) {
+diff --git a/seed-ui/src/app/shared/dev/app-header.component.html b/seed-ui/src/app/shared/dev/app-header.component.html
+index 3dc3b8a..d0e584e 100644
+--- a/seed-ui/src/app/shared/dev/app-header.component.html
++++ b/seed-ui/src/app/shared/dev/app-header.component.html
+@@ -2,7 +2,7 @@
+ <header class="header header-4">
+    <div class="branding">
+       <a class="nav-link  nav-icon" href="javascript://">
+-         <clr-icon shape="plugin" size="32" class="is-inverse"></clr-icon>
++         <clr-icon shape="vm-bug" size="32" class="is-inverse"></clr-icon>
+          <span class="title">{{pluginName}} (dev mode)</span>
+       </a>
+    </div>
+@@ -45,10 +45,11 @@
+          <label for="viewInfo">View info</label>
+       </div>
+    </div>
+-   <div class="header-actions">
+-      <!-- Two buttons on the right side to switch between English and French translations -->
+-      <a class="us-flag" [style.opacity]="isFrench ? 0.7 : 1" (click)="setLocale('en')" href="javascript://"></a>
+-      <a class="fr-flag" [style.opacity]="isFrench ? 1 : 0.7" (click)="setLocale('fr')" href="javascript://"></a>
++   <div class="header-actions" style="font-size: 12px; padding-right:5px">
++         <!-- Two buttons on the right side to switch between English and French translations -->
++         <a class="us-flag" [style.opacity]="isFrench ? 0.7 : 1" (click)="setLocale('en')" href="javascript://"></a>
++         <a class="fr-flag" [style.opacity]="isFrench ? 1 : 0.7" (click)="setLocale('fr')" href="javascript://"></a>
++         <span style="display: inline-flex; align-items: center;">v{{version}}</span>
+    </div>
+ </header>
+ 
+diff --git a/seed-ui/src/app/shared/dev/app-header.component.ts b/seed-ui/src/app/shared/dev/app-header.component.ts
+index 65b0189..cd554b6 100644
+--- a/seed-ui/src/app/shared/dev/app-header.component.ts
++++ b/seed-ui/src/app/shared/dev/app-header.component.ts
+@@ -22,6 +22,7 @@ import { NavService } from "../../services/nav.service";
+ })
+ export class AppHeaderComponent implements OnInit {
+    pluginName = APP_CONFIG.pluginName;
++   version = APP_CONFIG.version;
+    viewExtension: string;
+    extensionXml: SafeHtml;
+    isFrench = false;
+diff --git a/seed-ui/src/app/shared/dev/dialog-box.component.ts b/seed-ui/src/app/shared/dev/dialog-box.component.ts
+index 4097cad..b95f770 100644
+--- a/seed-ui/src/app/shared/dev/dialog-box.component.ts
++++ b/seed-ui/src/app/shared/dev/dialog-box.component.ts
+@@ -2,8 +2,8 @@ import { Component, Input, OnInit, ViewChild } from "@angular/core";
+ 
+ import { GlobalsService }   from "../../shared/index";
+ import { DynamicDialogComponent }  from "./dynamic-dialog.component";
+-import { Action1ModalComponent, EchoModalComponent,
+-         EditChassisComponent } from "../../views/modals/index";
++import { Action1ModalComponent, EchoModalComponent} from "../../views/modals/index";
++import { EditChassisComponent } from "../../views/modals/edit-chassis.component"; // [removable-chassis-line]
+ 
+ /**
+  * Generic dialog used to wrap modal dialog sub-components in dev mode.
+@@ -55,8 +55,8 @@ export class DialogBoxComponent implements OnInit {
+       this.modalOpened = true;
+    }
+ 
+-   // Injection of EditChassisComponent
+    // [removable-chassis-code]
++   // Injection of EditChassisComponent
+    openEditChassis(context: any, title: string): void {
+       this.componentData = {
+          component: EditChassisComponent,
+@@ -68,6 +68,7 @@ export class DialogBoxComponent implements OnInit {
+       this.showCancelButton = true;
+       this.modalOpened = true;
+    }
++   // [end-chassis-code]
+ 
+    onSubmit(): void {
+       this.modalOpened = false;
+diff --git a/seed-ui/src/app/shared/dev/dynamic-dialog.component.ts b/seed-ui/src/app/shared/dev/dynamic-dialog.component.ts
+index ef0d312..b8b5e46 100644
+--- a/seed-ui/src/app/shared/dev/dynamic-dialog.component.ts
++++ b/seed-ui/src/app/shared/dev/dynamic-dialog.component.ts
+@@ -1,7 +1,7 @@
+ import { Component, Input, ViewContainerRef, ViewChild,
+          ReflectiveInjector, ComponentFactoryResolver} from '@angular/core';
+-import { Action1ModalComponent, EchoModalComponent,
+-         EditChassisComponent } from '../../views/modals/index';
++import { Action1ModalComponent, EchoModalComponent } from '../../views/modals/index';
++import { EditChassisComponent } from "../../views/modals/edit-chassis.component"; // [removable-chassis-line]
+ 
+ /**
+  * Dynamic injection of components, used by dialog-box
+@@ -10,7 +10,10 @@ import { Action1ModalComponent, EchoModalComponent,
+ @Component({
+    selector: 'dynamic-component',
+    // Add reference to the components here in order to dynamically create them
+-   entryComponents: [ Action1ModalComponent, EchoModalComponent, EditChassisComponent ],
++   entryComponents: [
++         Action1ModalComponent,
++         EditChassisComponent,  // [removable-chassis-line]
++         EchoModalComponent],
+    template: `
+     <div #dynamicComponentContainer></div>
+   `,
+diff --git a/seed-ui/src/app/shared/dev/sidenav.component.html b/seed-ui/src/app/shared/dev/sidenav.component.html
+index b54f916..eb06ac7 100644
+--- a/seed-ui/src/app/shared/dev/sidenav.component.html
++++ b/seed-ui/src/app/shared/dev/sidenav.component.html
+@@ -3,8 +3,8 @@
+    <section class="sidenav-content">
+       <!-- List of hosts -->
+       <section class="nav-group collapsible">
+-         <input id="hosts" type="checkbox">
+-         <label for="hosts">Hosts</label>
++         <input #hostsInput id="Hosts" type="checkbox" (click)="saveSetting($event)">
++         <label for="Hosts">Hosts</label>
+          <ul class="nav-list">
+             <li *ngFor="let host of hosts; let idx = index">
+                <a class="nav-link" (click)="selectHost(host.id, idx)" [class.active]="idx === selectedHost">
+@@ -15,8 +15,8 @@
+ 
+       <!-- List of chassis [removable-chassis-code] -->
+       <section class="nav-group collapsible">
+-         <input id="chassis" type="checkbox">
+-         <label for="chassis">Chassis</label>
++         <input #chassisInput id="Chassis" type="checkbox" (click)="saveSetting($event)">
++         <label for="Chassis">Chassis</label>
+          <ul class="nav-list">
+             <li *ngFor="let chassis of chassisList; let idx = index">
+                <a class="nav-link" (click)="selectChassis(chassis.id, idx)" [class.active]="idx === selectedChassis">
+@@ -25,6 +25,7 @@
+             </li>
+          </ul>
+       </section>
++      <!-- [end-chassis-code] -->
+ 
+    </section>
+ </nav>
+\ No newline at end of file
+diff --git a/seed-ui/src/app/shared/dev/sidenav.component.scss b/seed-ui/src/app/shared/dev/sidenav.component.scss
+index 651a111..8f860cd 100644
+--- a/seed-ui/src/app/shared/dev/sidenav.component.scss
++++ b/seed-ui/src/app/shared/dev/sidenav.component.scss
+@@ -1,3 +1,4 @@
+ .sidenav {
++  height: 100%;
+   background-color: #CFD8DC;
+ }
+\ No newline at end of file
+diff --git a/seed-ui/src/app/shared/dev/sidenav.component.ts b/seed-ui/src/app/shared/dev/sidenav.component.ts
+index 2baa997..731a9be 100644
+--- a/seed-ui/src/app/shared/dev/sidenav.component.ts
++++ b/seed-ui/src/app/shared/dev/sidenav.component.ts
+@@ -1,12 +1,15 @@
+-import { Component, OnInit, OnDestroy, Input } from "@angular/core";
++import { Component, OnInit, OnDestroy, Input, ViewChild, ElementRef } from "@angular/core";
+ import { Subscription } from "rxjs/Subscription";
+ 
+ import { GlobalsService, RefreshService,
+          AppAlertService}   from "../index";
+ import { Host, HostService } from "../../services/index";
+ import { NavService } from "../../services/nav.service";
++import { UserSettingService } from "app/shared/user-settings.service";
++// [removable-chassis-code]
+ import { ChassisService } from "../../services/chassis/chassis.service";
+ import { Chassis } from "../../services/chassis/chassis.model";
++// [end-chassis-code]
+ 
+ /**
+  * Sidenav component visible only in plugin mode and shared by all views
+@@ -18,34 +21,42 @@ import { Chassis } from "../../services/chassis/chassis.model";
+ })
+ export class SidenavComponent  implements OnInit, OnDestroy {
+    hosts: Host[];
+-   chassisList: Chassis[];
+    selectedHost = -1;
+-   selectedChassis = -1;
+    private subscription: Subscription;
++   @ViewChild("hostsInput") hostsListInput: ElementRef;
++   // [removable-chassis-code]
++   @ViewChild("chassisInput") chassisListInput: ElementRef;
++   chassisList: Chassis[];
++   selectedChassis = -1;
++   // [end-chassis-code]
++
+    // ToDo: use case for accessing parent component?
+    @Input() parent;
+ 
+    constructor(public gs: GlobalsService,
+                private appAlertService: AppAlertService,
+-               private chassisService: ChassisService,
++               private chassisService: ChassisService,      // [removable-chassis-line]
+                private hostService: HostService,
+                public navService: NavService,
+-               private refreshService: RefreshService) {
++               private refreshService: RefreshService,
++               private userSettingService: UserSettingService) {
+       this.subscription = refreshService.refreshObservable$.subscribe(
+             () => this.refreshView());
+    }
+ 
+    selectHost(hostId, index): void {
+       this.selectedHost = index;
+-      this.selectedChassis = -1;
++      this.selectedChassis = -1;  // [removable-chassis-line]
+       this.navService.showObjectView(hostId, "host");
+    }
+ 
++   // [removable-chassis-code]
+    selectChassis(chassisId, index): void {
+       this.selectedHost = -1;
+       this.selectedChassis = index;
+       this.navService.showObjectView(chassisId, "chassis", "summary");
+    }
++   // [end-chassis-code]
+ 
+    refreshView(): void {
+       this.hostService.getHosts()
+@@ -57,20 +68,34 @@ export class SidenavComponent  implements OnInit, OnDestroy {
+             })
+             .catch(errorMsg =>  this.appAlertService.showError(errorMsg));
+ 
+-      // get chassis sorted by name
++      // get chassis sorted by name [removable-chassis-code]
+       this.chassisService.getChassisList(true)
+             .then(chassisList => {
+                this.chassisList = chassisList;
+             })
+             .catch(errorMsg =>  this.appAlertService.showError(errorMsg));
++      // [end-chassis-code]
++   }
++
++   saveSetting(event): void {
++      const key = "show" + event.target.id;
++      this.userSettingService.setSetting(key, !event.target.checked);
+    }
+ 
+    ngOnInit(): void {
+       this.refreshView();
+-   }
+ 
++      // The lists collapsed state is saved as local setting.  Only hosts are shown initially.
++      const hostsListCollapsed: boolean = (this.userSettingService.getSetting("showHosts") === "false");
++      this.hostsListInput.nativeElement.checked = hostsListCollapsed;
++      // [removable-chassis-code]
++      const chassisListCollapsed: boolean = !(this.userSettingService.getSetting("showChassis") === "true");
++      this.chassisListInput.nativeElement.checked = chassisListCollapsed;
++      // [end-chassis-code]
++   }
+    ngOnDestroy(): void {
+       this.subscription.unsubscribe();
+    }
++
+ }
+ 
+diff --git a/seed-ui/src/app/shared/globals.service.spec.ts b/seed-ui/src/app/shared/globals.service.spec.ts
+index 0617140..c89491c 100644
+--- a/seed-ui/src/app/shared/globals.service.spec.ts
++++ b/seed-ui/src/app/shared/globals.service.spec.ts
+@@ -4,13 +4,14 @@ import { TestBed } from "@angular/core/testing";
+ // Internal imports
+ import { Globals, GlobalsService } from "./globals.service";
+ import { initGlobalService, globalStub } from "../testing/index";
++import { userSettingServiceStub } from "../testing/service-stubs";
++import { UserSettingService } from "./user-settings.service";
+ 
+ // ---------- Testing stubs ------------
+ 
+ // ----------- Testing vars ------------
+ 
+ let globalsService: GlobalsService;
+-const localStorage = window.localStorage;
+ 
+ // -------------- Tests ----------------
+ 
+@@ -48,7 +49,9 @@ describe("GlobalsService tests", () => {
+       TestBed.configureTestingModule({
+          imports: [ ],
+          providers: [ GlobalsService,
+-            { provide: Globals, useValue: globalStub }]
++            { provide: Globals, useValue: globalStub },
++            { provide: UserSettingService, useValue: userSettingServiceStub }
++         ]
+       });
+    });
+    describe("when pluginMode is true", () => {
+@@ -79,17 +82,14 @@ describe("GlobalsService tests", () => {
+ 
+    describe("when pluginMode is false", () => {
+       beforeEach(() => {
+-         // Ignore localStorage
+-         spyOn(localStorage, "getItem").and.returnValue("");
+-
+          globalsService = initGlobalService(false);
+          spyOn(globalsService, "getClientId").and.returnValue("someClientId");
+       });
+ 
+-      it ("starts with sideNav false and can change it", ()  => {
+-         expect(globalsService.showSidenav()).not.toBeTruthy();
+-         globalsService.toggleSidenav();
++      it ("starts with sideNav true and can change it", ()  => {
+          expect(globalsService.showSidenav()).toBeTruthy();
++         globalsService.toggleSidenav();
++         expect(globalsService.showSidenav()).not.toBeTruthy();
+       });
+ 
+       it ("starts with liveData false and can change it", ()  => {
+diff --git a/seed-ui/src/app/shared/globals.service.ts b/seed-ui/src/app/shared/globals.service.ts
+index 303fd1f..d88886d 100644
+--- a/seed-ui/src/app/shared/globals.service.ts
++++ b/seed-ui/src/app/shared/globals.service.ts
+@@ -4,13 +4,7 @@ import { Headers } from "@angular/http";
+ import { APP_CONFIG }  from "./app-config";
+ import { WebPlatform } from "./vSphereClientSdkTypes";
+ import { webPlatformStub } from "./dev/webPlatformStub";
+-
+-// Localstorage item names
+-const liveDataItem = APP_CONFIG.pluginName + "-liveData";
+-const devUiItem = APP_CONFIG.pluginName + "-devUI";
+-const sidenavItem = APP_CONFIG.pluginName + "-sidenav";
+-const viewInfoItem = APP_CONFIG.pluginName + "-viewInfo";
+-const clientIdItem = APP_CONFIG.pluginName + "-clientId";
++import { UserSettingService } from "./user-settings.service";
+ 
+ 
+ /**
+@@ -75,22 +69,25 @@ export class GlobalsService {
+    // The locale id of the vSphere Client, or "en" by default in standalone
+    public locale = "en";
+ 
+-   constructor(private globals: Globals) {
++   constructor(private globals: Globals,
++               private userSetting: UserSettingService) {
++      const liveDataSetting = userSetting.getSetting("liveData");
++
+       // liveData is always true in production.
+       // Then it is true by default when running as a plugin, and false by default when running standalone
+       this.liveData = !this.isLocalhostDevMode() ? true :
+-            this.isPluginMode() ? (localStorage.getItem(liveDataItem) === "false" ? false : true) :
+-            (localStorage.getItem(liveDataItem) === "true" ? true : false);
++            this.isPluginMode() ? (liveDataSetting === "false" ? false : true) :
++                                  (liveDataSetting === "true" ? true : false);
+ 
+       if (this.isPluginMode()) {
+          this.sidenav = false;
+          this.devUI = false;
+ 
+       } else {
+-         // Dev mode defaults: re-use what was last saved in browser local storage
+-         this.sidenav = (localStorage.getItem(sidenavItem) === "true" ? true : false);
+-         this.viewInfo = (localStorage.getItem(viewInfoItem) === "true" ? true : false);
+-         this.clientId = localStorage.getItem(clientIdItem);
++         // Dev mode defaults: re-use what was last saved as user setting
++         this.sidenav = (userSetting.getSetting("sidenav") === "false" ? false : true);
++         this.viewInfo = (userSetting.getSetting("viewInfo") === "true" ? true : false);
++         this.clientId = userSetting.getSetting("clientId");
+       }
+       this.webContextPath = this.getWebPlatform().getRootPath() + "/" + APP_CONFIG.pluginName;
+    }
+@@ -112,6 +109,8 @@ export class GlobalsService {
+ 
+    /**
+     * @return the context path for this plugin object.
++    *  i.e. /vsphere-client/myPluginName for the vSphere Web Client (Flash)
++    *  and  /ui/myPluginName for the vSphere HTML Client
+     */
+    public getWebContextPath(): string {
+       return this.webContextPath;
+@@ -128,7 +127,7 @@ export class GlobalsService {
+       // Possible only in dev mode or when testing plugin mode on localhost
+       if (this.isLocalhostDevMode()) {
+          this.liveData = !this.liveData;
+-         localStorage.setItem(liveDataItem, "" + this.liveData);
++         this.userSetting.setSetting("liveData", this.liveData);
+       }
+    }
+ 
+@@ -143,7 +142,7 @@ export class GlobalsService {
+    public toggleDevUI(): void {
+       if (!this.isPluginMode()) {
+          this.devUI = !this.devUI;
+-         localStorage.setItem(devUiItem, "" + this.devUI);
++         this.userSetting.setSetting("devUI", this.devUI);
+       }
+    }
+ 
+@@ -158,7 +157,7 @@ export class GlobalsService {
+    public toggleSidenav(): void {
+       if (!this.isPluginMode()) {
+          this.sidenav = !this.sidenav;
+-         localStorage.setItem(sidenavItem, "" + this.sidenav);
++         this.userSetting.setSetting("sidenav", this.sidenav);
+       }
+    }
+ 
+@@ -172,7 +171,7 @@ export class GlobalsService {
+    public toggleViewInfo(): void {
+       if (!this.isPluginMode()) {
+          this.viewInfo = !this.viewInfo;
+-         localStorage.setItem(viewInfoItem, "" + this.viewInfo);
++         this.userSetting.setSetting("viewInfo", this.viewInfo);
+       }
+    }
+ 
+@@ -182,7 +181,7 @@ export class GlobalsService {
+    public setClientId(id): void {
+       if (!this.isPluginMode()) {
+          this.clientId = id;
+-         localStorage.setItem(clientIdItem, this.clientId);
++         this.userSetting.setSetting("clientId", this.clientId);
+       }
+    }
+ 
+diff --git a/seed-ui/src/app/shared/user-settings.service.ts b/seed-ui/src/app/shared/user-settings.service.ts
+new file mode 100644
+index 0000000..704b562
+--- /dev/null
++++ b/seed-ui/src/app/shared/user-settings.service.ts
+@@ -0,0 +1,26 @@
++
++import { Injectable } from "@angular/core";
++import { APP_CONFIG } from "app/shared";
++
++/**
++ * Service to store user preferences that are used across views.
++ *
++ * In plugin mode, each view is a separate webapp, so runtime values cannot be
++ * easily between views. This service uses the browser "local storage" to save
++ * preferences locally. It could be extended to save data on the backend instead.
++ *
++ * In Dev mode this service is useful for restoring settings each time the app is refreshed.
++ */
++@Injectable()
++export class UserSettingService {
++   setSetting(key: string, value: any): void {
++      const pluginKey = APP_CONFIG.pluginName + "-" + key;
++      const strValue = "" + value;
++      localStorage.setItem(pluginKey, strValue);
++   }
++
++   getSetting(key: string): string {
++      const pluginKey = APP_CONFIG.pluginName + "-" + key;
++      return localStorage.getItem(pluginKey);
++   }
++}
+diff --git a/seed-ui/src/app/testing/service-stubs.ts b/seed-ui/src/app/testing/service-stubs.ts
+index 55f567d..47f2afa 100644
+--- a/seed-ui/src/app/testing/service-stubs.ts
++++ b/seed-ui/src/app/testing/service-stubs.ts
+@@ -6,6 +6,7 @@ import { Response, ResponseOptions } from "@angular/http";
+ // [removable-chassis-code]
+ import { Chassis } from "../services/chassis/chassis.model";
+ import { chassisList } from "../services/testing/fake-chassis";
++// [end-chassis-code]
+ 
+ /*
+  * Various service stubs used for components unit tests
+@@ -23,6 +24,7 @@ export const appAlertServiceStub = {
+    showError: function(any) { }
+ };
+ 
++// [removable-chassis-code]
+ export const chassisServiceStub = {
+    delete(chassis: Chassis): Promise<Response> {
+       const resp = new Response(new ResponseOptions({status: 200, body: {data: []}}));
+@@ -32,6 +34,7 @@ export const chassisServiceStub = {
+       return Promise.resolve(chassisList);
+    }
+ };
++// [end-chassis-code]
+ 
+ export const echoServiceStub = {
+    sendEcho(echoMsg: string): Observable<string> {
+@@ -52,3 +55,8 @@ export const navServiceStub = {
+    showSettingsView: function() {  }
+ };
+ 
++export const userSettingServiceStub = {
++   getSetting: function(key: string) { return null; },
++   setSetting: function(key: string, value: any) {  }
++};
++
+diff --git a/seed-ui/src/app/views/chassis-summary/chassis-summary.component.html b/seed-ui/src/app/views/chassis-summary/chassis-summary.component.html
+index 4f55a73..f8646d9 100644
+--- a/seed-ui/src/app/views/chassis-summary/chassis-summary.component.html
++++ b/seed-ui/src/app/views/chassis-summary/chassis-summary.component.html
+@@ -8,10 +8,10 @@
+    <table style="height:100%;width:100%"><tr>
+ 
+       <!-- Dev mode left sidenav used as a mock navigator -->
+-      <td *ngIf="gs.showSidenav()" style="vertical-align: top; padding: 0px;">
++      <td *ngIf="gs.showSidenav()" class="td-sidenav">
+          <sidenav [parent]="instance"></sidenav>
+       </td>
+-      <td *ngIf="chassis" style="vertical-align: top;width: 100%; padding: 0px;">
++      <td *ngIf="chassis"  class="td-subnav">
+          <!-- Subnav tabs to switch between object views -->
+          <subnav *ngIf="gs.showDevUI()" [objectId]="chassis.id" [objectType]="'chassis'"></subnav>
+ 
+diff --git a/seed-ui/src/app/views/chassis-summary/chassis-summary.component.ts b/seed-ui/src/app/views/chassis-summary/chassis-summary.component.ts
+index 6f9713c..20076a8 100644
+--- a/seed-ui/src/app/views/chassis-summary/chassis-summary.component.ts
++++ b/seed-ui/src/app/views/chassis-summary/chassis-summary.component.ts
+@@ -1,4 +1,4 @@
+-import { Component, Input, OnInit, OnDestroy, ViewChild } from "@angular/core";
++import { Component, Input, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from "@angular/core";
+ import { ActivatedRoute, Params } from "@angular/router";
+ import { Subscription } from "rxjs/Subscription";
+ 
+@@ -31,9 +31,10 @@ export class ChassisSummaryComponent implements OnInit, OnDestroy {
+                private chassisService: ChassisService,
+                public  i18n: I18nService,
+                private refreshService: RefreshService,
+-               private route: ActivatedRoute) {
++               private route: ActivatedRoute,
++               private changeDetector: ChangeDetectorRef) {
+       this.subscription = refreshService.refreshObservable$.subscribe(
+-            () => this.getChassisAndUpdateView());
++            () => this.getChassisAndUpdateView(null, true));
+    }
+ 
+ 
+@@ -62,21 +63,26 @@ export class ChassisSummaryComponent implements OnInit, OnDestroy {
+       this.subscription.unsubscribe();
+    }
+ 
+-   private getChassisAndUpdateView(id: string = null): void {
++   private getChassisAndUpdateView(id: string = null, inRefreshView: boolean = false): void {
+       if (!id) {
+          id = this.chassis.id;
+       }
+       this.chassisService.getChassis(id)
+          .then(chassis => {
+             this.chassis = chassis;
+-            this.updateView();
++            this.updateView(inRefreshView);
+          })
+          .catch(errorMsg => this.appAlertService.showError(errorMsg));
+    }
+ 
+-   private updateView(): void {
++   private updateView(inRefreshView: boolean = false): void {
+        // Mock health and compliance levels
+       this.level1 = Math.round(Math.random() * 100);
+       this.level2 = Math.round(Math.random() * 100);
++
++      if (inRefreshView) {
++         // This is necessary to refresh the DOM when coming from a Refresh event
++         this.changeDetector.detectChanges();
++      }
+    }
+ }
+diff --git a/seed-ui/src/app/views/main/main.component.html b/seed-ui/src/app/views/main/main.component.html
+index 7f42716..3ef4463 100644
+--- a/seed-ui/src/app/views/main/main.component.html
++++ b/seed-ui/src/app/views/main/main.component.html
+@@ -9,14 +9,50 @@
+ 
+    <div class="content-container">
+       <clr-tabs style="width: 100%" (clrTabsCurrentTabLinkChanged)="onTabSelected($event)">
+-         <clr-tab-link [clrTabLinkId]="'mainTab'" style="padding-left: 10px;">Echo Service</clr-tab-link>
+-         <clr-tab-link [clrTabLinkId]="'chassisTab'">Chassis List</clr-tab-link>
++         <clr-tab-link [clrTabLinkId]="'homeTab'" [clrTabLinkActive]="isActiveTab('homeTab')" style="padding-left: 10px;">
++            Home</clr-tab-link>
++         <clr-tab-link [clrTabLinkId]="'echoTab'" [clrTabLinkActive]="isActiveTab('echoTab')">
++            Echo Service</clr-tab-link>
++         <!-- [removable-chassis-code] -->
++         <clr-tab-link [clrTabLinkId]="'chassisTab'" [clrTabLinkActive]="isActiveTab('chassisTab')">
++            Chassis List</clr-tab-link>
++         <!-- [end-chassis-code] -->
++
++         <!-- ------------------- Home tab ---------------------- -->
++
++         <clr-tab-content [clrTabContentActive]="isActiveTab('homeTab')">
++            <div class="content-area">
++               <clr-icon shape="home" size="96"></clr-icon>
++               <p>{{i18n.translate("mainView.content")}}</p>
++               <a class="nav-link nav-icon" href="javascript://" (click)="nav.showSettingsView()">
++                  <clr-icon shape="cog" size="24"></clr-icon>
++               </a>
++               <button (click)="nav.showSettingsView()" class="btn btn-link">{{i18n.translate("gotoSettings")}}</button>
++               <br/><i>View updated at {{updateTime}}</i>
++
++               <div *ngIf="gs.showDevUI()" class="dev-ui">
++                  <clr-icon shape="info" size="24"></clr-icon>Notes:
++                  <div>
++                  This is the plugin's main view, used to display global information.
++                  <br/>It can contain tabs like this one, or the
++                     <a class="nav-link nav-icon" href="https://vmware.github.io/clarity/documentation/app-layout" target="_blank">
++                        layout of your choice.
++                     </a>
++                  <br/>See the
++                     <a class="nav-link nav-icon" href="https://vmware.github.io/clarity/documentation" target="_blank">
++                        Clarity documentation</a> for the list of UI components available.
++                  <br/>Click <clr-icon shape="remove" size="16"></clr-icon> in the top left corner to hide
++                     the extra UI provided by the dev mode.
++                  </div>
++               </div>
++            </div>
++         </clr-tab-content>
+ 
+-         <!-- ------------------- Main tab ---------------------- -->
++         <!-- -------------------Echo service tab ---------------------- -->
+ 
+-         <clr-tab-content>
++         <clr-tab-content [clrTabContentActive]="isActiveTab('echoTab')">
+             <div class="content-area">
+-               <p style="padding-bottom: 10px">{{i18n.translate("mainView.content")}}</p>
++               <p style="padding-bottom: 10px">Example of Java service running on the backend.</p>
+                <div class="card-columns card-columns-2">
+                   <div class="card clickable">
+                      <div class="card-header">
+@@ -25,25 +61,20 @@
+                      <div class="card-block">
+                         {{i18n.translate("mainView.clickToCall")}}
+                         <p>
+-                           <a (click)="sendEcho(true)" class="btn">{{i18n.translate("mainView.helloBtn1")}}</a>
+-                           <a (click)="sendEcho(false)" class="btn">{{i18n.translate("mainView.helloBtn2")
+-                              }}</a>
++                           <a id="helloBtn1" (click)="sendEcho(true)" class="btn">
++                              {{i18n.translate("mainView.helloBtn1")}}</a>
++                           <a id="helloBtn2" (click)="sendEcho(false)" class="btn">
++                              {{i18n.translate("mainView.helloBtn2")}}</a>
+                         </p>
+                      </div>
+                   </div>
+                </div>
+-               <button (click)="nav.showSettingsView()" class="btn btn-link">{{i18n.translate("gotoSettings")}}</button>
+-               <div *ngIf="gs.showDevUI()" class="dev-ui">
+-                  <clr-icon shape="info" size="24"></clr-icon>
+-                     This is the plugin's main view, used for global information and actions.
+-                     <br/>EchoService is an example of Java service running on the backend.
+-               </div>
+             </div>
+          </clr-tab-content>
+ 
+          <!-- ------------------- Chassis tab ------------------[removable-chassis-code] -->
+ 
+-         <clr-tab-content>
++         <clr-tab-content [clrTabContentActive]="isActiveTab('chassisTab')">
+             <div class="content-area">
+                <img src="./assets/images/chassis_image.png" style="float: left" width="400">
+                <a (click)="editChassis()" class="btn btn-link">
+@@ -76,6 +107,7 @@
+                </clr-datagrid>
+             </div>
+          </clr-tab-content>
++         <!-- [end-chassis-code] -->
+       </clr-tabs>
+       <!-- Dev mode sidenav to facilitate object navigation -->
+       <sidenav *ngIf="gs.showSidenav()" style="order:-1"></sidenav>
+diff --git a/seed-ui/src/app/views/main/main.component.scss b/seed-ui/src/app/views/main/main.component.scss
+index 292e52a..e69de29 100644
+--- a/seed-ui/src/app/views/main/main.component.scss
++++ b/seed-ui/src/app/views/main/main.component.scss
+@@ -1,5 +0,0 @@
+-.dev-ui {
+-  padding-top: 10px;
+-  opacity: 0.6;
+-}
+-
+diff --git a/seed-ui/src/app/views/main/main.component.spec.ts b/seed-ui/src/app/views/main/main.component.spec.ts
+index 7cc0492..6cfd9d4 100644
+--- a/seed-ui/src/app/views/main/main.component.spec.ts
++++ b/seed-ui/src/app/views/main/main.component.spec.ts
+@@ -9,9 +9,14 @@ import { EchoService, NavService }  from "../../services/index";
+ import { GlobalsService, RefreshService,
+          AppAlertService, I18nService } from "../../shared/index";
+ import { MainComponent }     from "./index";
+-import { globalsServiceStub, appAlertServiceStub, chassisServiceStub,
+-         echoServiceStub, i18nServiceStub, navServiceStub } from "../../testing/service-stubs";
++import { globalsServiceStub, appAlertServiceStub,
++         echoServiceStub, i18nServiceStub, navServiceStub,
++         userSettingServiceStub } from "../../testing/service-stubs";
++import { UserSettingService } from "../../shared/user-settings.service";
++// [removable-chassis-code]
++import { chassisServiceStub } from "../../testing/service-stubs";
+ import { ChassisService } from "../../services/chassis/chassis.service";
++// [end-chassis-code]
+ 
+ // ---------- Testing stubs ------------
+ 
+@@ -52,29 +57,33 @@ describe("MainComponent", () => {
+          providers: [ RefreshService,
+             { provide: AppAlertService,   useValue: appAlertServiceStub },
+             { provide: GlobalsService,    useValue: globalsServiceStub },
+-            { provide: ChassisService, useValue: chassisServiceStub },
++            { provide: ChassisService, useValue: chassisServiceStub }, // [removable-chassis-line]
+             { provide: EchoService, useValue: echoServiceStub },
+             { provide: I18nService, useValue: i18nServiceStub },
+-            { provide: NavService, useValue: navServiceStub }
++            { provide: NavService, useValue: navServiceStub },
++            { provide: UserSettingService, useValue: userSettingServiceStub }
+          ]
+       })
+       .compileComponents()
+       .then(createComponent);
+    }));
+ 
+-   it("should instantiate MainComponent", () => {
++   it("should instantiate MainComponent and display the Home tab", () => {
+       expect(fixture.componentInstance instanceof MainComponent).toBe(true,
+             "should create MainComponent");
++      const homeTextKey = compElement.querySelector(".content-area p").innerText;
++      expect(homeTextKey).toBe("mainView.content");
+    });
+ 
+-   it("should display 3 buttons", () => {
++   it("should display 2 buttons in Echo Service tab", () => {
+       // fixture.detectChanges();
++      const tabLinks =  compElement.querySelectorAll(".nav .nav-link");
++      tabLinks[1].click();
+       const helloButtons = compElement.querySelectorAll(".card-block .btn");
+       const settingsButton = compElement.querySelector(".content-area > .btn-link");
+       expect(helloButtons.length).toEqual(2);
+-      expect(helloButtons[0].textContent).toBe("mainView.helloBtn1");
+-      expect(helloButtons[1].textContent).toBe("mainView.helloBtn2");
+-      expect(settingsButton.textContent).toBe("gotoSettings");
++      expect(helloButtons[0].id).toBe("helloBtn1");
++      expect(helloButtons[1].id).toBe("helloBtn2");
+    });
+ 
+    it("should call echoService.sendEcho for hello button 1", fakeAsync(() => {
+@@ -90,25 +99,26 @@ describe("MainComponent", () => {
+    }));
+ 
+    // Different implementation of the same tests. Works with Chrome but fails with PhantomJS.
+-   // Tests are excluded with "xit" on purpose, or you can comment them out.
+-   xit("should display 3 buttons", () => {
++/*
++   it("should display 3 buttons", () => {
+       expect(page.helloButtons.length).toEqual(2);
+       expect(page.helloButtons[0].nativeElement.textContent).toBe("mainView.helloBtn1");
+       expect(page.helloButtons[1].nativeElement.textContent).toBe("mainView.helloBtn2");
+       expect(page.settingsButton.nativeElement.textContent).toBe("gotoSettings");
+    });
+ 
+-   xit("should call echoService.sendEcho for hello button 1", fakeAsync(() => {
++   it("should call echoService.sendEcho for hello button 1", fakeAsync(() => {
+       page.helloButtons[0].triggerEventHandler("click", null);
+       tick();
+       expect(page.echoServiceSpy.calls.any()).toBe(true, "sendEcho called");
+    }));
+ 
+-   xit("should call navService.showSettingsView for settingsButton", fakeAsync(() => {
++   it("should call navService.showSettingsView for settingsButton", fakeAsync(() => {
+       page.settingsButton.triggerEventHandler("click", null);
+       tick();
+       expect(page.navServiceSpy.calls.any()).toBe(true, "showSettingsView called");
+    }));
++*/
+ });
+ 
+ 
+diff --git a/seed-ui/src/app/views/main/main.component.ts b/seed-ui/src/app/views/main/main.component.ts
+index 5e10278..ebf1e27 100644
+--- a/seed-ui/src/app/views/main/main.component.ts
++++ b/seed-ui/src/app/views/main/main.component.ts
+@@ -1,4 +1,5 @@
+-import { Component, Input, OnInit, OnDestroy, ViewChild, Inject, forwardRef } from "@angular/core";
++import { Component, Input, OnInit, OnDestroy, ViewChild, Inject,
++         forwardRef, ChangeDetectorRef } from "@angular/core";
+ import { Subscription } from "rxjs/Subscription";
+ import { TabLink } from "clarity-angular";
+ 
+@@ -7,8 +8,11 @@ import { GlobalsService, RefreshService,
+ AppAlertService, I18nService }   from "../../shared/index";
+ import { WebPlatform } from "../../shared/vSphereClientSdkTypes";
+ import { DialogBoxComponent }  from "../../shared/dev/dialog-box.component";
++import { UserSettingService } from "../../shared/user-settings.service";
++// [removable-chassis-code]
+ import { Chassis } from "../../services/chassis/chassis.model";
+ import { ChassisService } from "../../services/chassis/chassis.service";
++// [end-chassis-code]
+ 
+ @Component({
+    selector: "main-view",
+@@ -16,10 +20,10 @@ import { ChassisService } from "../../services/chassis/chassis.service";
+    templateUrl: "./main.component.html",
+ })
+ export class MainComponent implements OnInit, OnDestroy {
+-   chassisList: Chassis[];
+-   selectedChassis: Chassis;
+-   currentTabId: string;
++   chassisList: Chassis[];  // [removable-chassis-line]
++   currentTab: string;
+    echoMsg: string;
++   updateTime: string;
+    webPlatform: WebPlatform;
+    @Input() echoModalOpened = false;
+    private echoSubscription: Subscription;
+@@ -32,18 +36,20 @@ export class MainComponent implements OnInit, OnDestroy {
+    // circular dependencies problems in main.component.spec.ts test, else we get this error:
+    //   "Failed: Can't resolve all parameters for MainComponent: ([object Object], ?, [object Object], ...)"
+    constructor(public gs: GlobalsService,
+-               @Inject(forwardRef(() => ChassisService)) private chassisService: ChassisService,
++               @Inject(forwardRef(() => ChassisService)) private chassisService: ChassisService,  // [removable-chassis-line]
+                @Inject(forwardRef(() => EchoService)) private echoService: EchoService,
+                private appAlertService: AppAlertService,
+                @Inject(forwardRef(() => NavService)) public nav: NavService,
+                private refreshService: RefreshService,
+-               public  i18n: I18nService) {
++               private userSettingService: UserSettingService,
++               public  i18n: I18nService,
++               private changeDetector: ChangeDetectorRef) {
+ 
+       this.webPlatform = this.gs.getWebPlatform();
+ 
+       // Subscribe to refreshService to handle the global refresh action
+       this.refreshSubscription = refreshService.refreshObservable$.subscribe(
+-            () => this.refreshPage());
++            () => this.refreshView());
+    }
+ 
+    sendEcho(useLocalPopup: boolean): void {
+@@ -99,7 +105,6 @@ export class MainComponent implements OnInit, OnDestroy {
+       this.nav.showObjectView(chassis.id, "chassis", "summary");
+    }
+ 
+-   // [removable-chassis-code]
+    editChassis(chassis: Chassis = null): void {
+       const addingChassis: boolean = (chassis === null);
+       const title = addingChassis ? this.i18n.translate("chassis.createAction") :
+@@ -115,7 +120,6 @@ export class MainComponent implements OnInit, OnDestroy {
+       }
+    }
+ 
+-   // [removable-chassis-code]
+    deleteChassis(chassis: Chassis): void {
+       if (this.gs.isPluginMode()) {
+          // TODO make delete work in this mode
+@@ -127,13 +131,35 @@ export class MainComponent implements OnInit, OnDestroy {
+                });
+       }
+    }
++   // [end-chassis-code]
++
++   isActiveTab(id: string): boolean {
++      return (id === this.currentTab);
++   }
++
++   setActiveTab(id: string, inRefreshView: boolean = false): void {
++      this.currentTab = id;
++
++      if (this.currentTab === 'homeTab') {
++         // Timestamp to show how the home view is refreshed through the RefreshService.
++         this.updateTime = new Date().toLocaleTimeString();
++      }
++
++      // Reload the view data for tabs who need it  [removable-chassis-code]
++      if (this.currentTab === 'chassisTab') {
++         this.getChassisList();
++      }
++      // [end-chassis-code]
++   }
+ 
+    onTabSelected(event: TabLink) {
+-      this.currentTabId = event.id;
++      this.appAlertService.closeAlert();
++      this.setActiveTab(event.id);
++      this.userSettingService.setSetting("mainTab", event.id);
+    }
+ 
+    ngOnInit(): void {
+-      this.getChassisList();
++      this.initCurrentTabView();
+    }
+ 
+    ngOnDestroy(): void {
+@@ -143,17 +169,29 @@ export class MainComponent implements OnInit, OnDestroy {
+       }
+    }
+ 
+-   private refreshPage(): void {
+-      this.getChassisList();
++   private refreshView(): void {
++      this.initCurrentTabView(true);
++   }
++
++   private initCurrentTabView(inRefreshView: boolean = false): void {
++      let savedTab: string = this.userSettingService.getSetting("mainTab");
++      if (savedTab !== "echoTab" && savedTab !== "chassisTab") {
++         savedTab = "homeTab";
++      }
++      this.setActiveTab(savedTab, inRefreshView);
+    }
+ 
+    // [removable-chassis-code]
+-   private getChassisList(): void {
++   private getChassisList(inRefreshView: boolean = false): void {
+       this.chassisService.getChassisList(true)
+             .then(chassisList => {
+                this.chassisList = chassisList;
+-               // this.resetSelected();
++               if (inRefreshView) {
++                  // This is necessary to refresh the DOM when coming from a Refresh event
++                  this.changeDetector.detectChanges();
++               }
+             })
+             .catch(errorMsg => this.appAlertService.showError(errorMsg));
+    }
++   // [end-chassis-code]
+ }
+diff --git a/seed-ui/src/app/views/modals/index.ts b/seed-ui/src/app/views/modals/index.ts
+index 80bcaf4..e7376de 100644
+--- a/seed-ui/src/app/views/modals/index.ts
++++ b/seed-ui/src/app/views/modals/index.ts
+@@ -1,4 +1,3 @@
+ export * from "./action1-modal.component";
+ export * from "./action2-wizard.component";
+ export * from "./echo-modal.component";
+-export * from "./edit-chassis.component";
+diff --git a/seed-ui/src/app/views/monitor/monitor.component.html b/seed-ui/src/app/views/monitor/monitor.component.html
+index 7d09dbf..7cbc10f 100644
+--- a/seed-ui/src/app/views/monitor/monitor.component.html
++++ b/seed-ui/src/app/views/monitor/monitor.component.html
+@@ -7,11 +7,11 @@
+ <div class="main-container">
+ <table style="height:100%;width:100%"><tr>
+ 
+-   <td *ngIf="gs.showSidenav()" style="vertical-align: top; padding: 0px;">
++   <td *ngIf="gs.showSidenav()" class="td-sidenav">
+       <!-- Left sidenav used as object navigator -->
+       <sidenav [parent]="instance"></sidenav>
+    </td>
+-   <td *ngIf="host" style="vertical-align: top;width: 100%; padding: 0px;">
++   <td *ngIf="host" class="td-subnav">
+       <!-- Subnav tabs to switch between object views -->
+       <subnav *ngIf="gs.showDevUI()" [objectId]="host.id" [objectType]="'host'"></subnav>
+ 
+diff --git a/seed-ui/src/app/views/monitor/monitor.component.scss b/seed-ui/src/app/views/monitor/monitor.component.scss
+index 9609bf0..2202468 100644
+--- a/seed-ui/src/app/views/monitor/monitor.component.scss
++++ b/seed-ui/src/app/views/monitor/monitor.component.scss
+@@ -10,7 +10,4 @@
+     color: red;
+   }
+ }
+-.dev-ui {
+-  padding-top: 10px;
+-  opacity: 0.6;
+-}
++
+diff --git a/seed-ui/src/app/views/monitor/monitor.component.ts b/seed-ui/src/app/views/monitor/monitor.component.ts
+index dd35e16..78f45b7 100644
+--- a/seed-ui/src/app/views/monitor/monitor.component.ts
++++ b/seed-ui/src/app/views/monitor/monitor.component.ts
+@@ -1,4 +1,4 @@
+-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren } from "@angular/core";
++import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, ChangeDetectorRef } from "@angular/core";
+ import { Location }     from "@angular/common";
+ import { ActivatedRoute, Params } from "@angular/router";
+ import { Subscription } from "rxjs/Subscription";
+@@ -34,7 +34,8 @@ export class MonitorComponent implements OnInit, OnDestroy {
+                private location: Location,
+                public  nav: NavService,
+                private refreshService: RefreshService,
+-               private route: ActivatedRoute) {
++               private route: ActivatedRoute,
++               private changeDetector: ChangeDetectorRef) {
+ 
+       this.instance = this;
+ 
+@@ -81,7 +82,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
+                if (!curHost) {
+                   id = hosts[0].id;
+                }
+-               this.getHostData(id);
++               this.getHostData(id, true);
+             });
+    }
+ 
+@@ -123,15 +124,18 @@ export class MonitorComponent implements OnInit, OnDestroy {
+     *
+     * @param id
+     */
+-   private getHostData(id: string): void {
++   private getHostData(id: string, inRefreshView: boolean = false): void {
+       const useLiveData = this.gs.useLiveData();
+       this.hostService.getHostProperties(id, APP_CONFIG.hostProperties)
+             .then(host => {
+                this.host = host;
+                if (!useLiveData && host.id !== id) {
+-                  this.appAlertService.showWarning("Couldn't find mock host id " + id);
+                   this.host.id = id;
+                }
++               if (inRefreshView) {
++                  // This is necessary to refresh the DOM when coming from a Refresh event
++                  this.changeDetector.detectChanges();
++               }
+             })
+             .catch(errorMsg => {
+                this.appAlertService.showError(errorMsg);
+diff --git a/seed-ui/src/app/views/settings/settings.component.scss b/seed-ui/src/app/views/settings/settings.component.scss
+index d0c2185..e69de29 100644
+--- a/seed-ui/src/app/views/settings/settings.component.scss
++++ b/seed-ui/src/app/views/settings/settings.component.scss
+@@ -1,4 +0,0 @@
+-.dev-ui {
+-  padding-top: 10px;
+-  opacity: 0.6;
+-}
+diff --git a/seed-ui/src/app/views/summary/summary.component.html b/seed-ui/src/app/views/summary/summary.component.html
+index 0dd3cf1..43652b9 100644
+--- a/seed-ui/src/app/views/summary/summary.component.html
++++ b/seed-ui/src/app/views/summary/summary.component.html
+@@ -8,10 +8,10 @@
+   <table style="height:100%;width:100%"><tr>
+ 
+     <!-- Dev mode left sidenav used as a mock navigator -->
+-    <td *ngIf="gs.showSidenav()" style="vertical-align: top; padding: 0px;">
++    <td *ngIf="gs.showSidenav()" class="td-sidenav">
+       <sidenav [parent]="instance"></sidenav>
+     </td>
+-    <td style="vertical-align: top;width: 100%; padding: 0px;">
++    <td class="td-subnav">
+       <!-- Subnav tabs to switch between object views -->
+       <subnav *ngIf="gs.showDevUI()" [objectId]="hostId" [objectType]="'host'"></subnav>
+ 
+diff --git a/seed-ui/src/app/views/summary/summary.component.scss b/seed-ui/src/app/views/summary/summary.component.scss
+index d0c2185..e69de29 100644
+--- a/seed-ui/src/app/views/summary/summary.component.scss
++++ b/seed-ui/src/app/views/summary/summary.component.scss
+@@ -1,4 +0,0 @@
+-.dev-ui {
+-  padding-top: 10px;
+-  opacity: 0.6;
+-}
+diff --git a/seed-ui/src/webapp/META-INF/MANIFEST-no-java.MF b/seed-ui/src/webapp/META-INF/MANIFEST-no-java.MF
+new file mode 100644
+index 0000000..fca86f3
+--- /dev/null
++++ b/seed-ui/src/webapp/META-INF/MANIFEST-no-java.MF
+@@ -0,0 +1,7 @@
++Manifest-Version: 1.0
++Bundle-ManifestVersion: 2
++Bundle-Name: __projectName-ui__
++Bundle-SymbolicName: __packageName__.__projectName-ui__
++Bundle-Version: 1.0.0
++Bundle-Vendor: VMware
++Web-ContextPath: vsphere-client/__pluginName__
+diff --git a/seed-ui/src/webapp/META-INF/MANIFEST-with-proxy.MF b/seed-ui/src/webapp/META-INF/MANIFEST-with-proxy.MF
+new file mode 100644
+index 0000000..5396da7
+--- /dev/null
++++ b/seed-ui/src/webapp/META-INF/MANIFEST-with-proxy.MF
+@@ -0,0 +1,8 @@
++Manifest-Version: 1.0
++Bundle-ManifestVersion: 2
++Bundle-Name: __projectName-ui__
++Bundle-SymbolicName: __packageName__.__projectName-ui__
++Bundle-Version: 1.0.0
++Bundle-Vendor: VMware
++Web-ContextPath: vsphere-client/__pluginName__
++Import-Package: org.mitre.dsmiley.httpproxy
+diff --git a/seed-ui/src/webapp/WEB-INF/spring/bundle-context.xml b/seed-ui/src/webapp/WEB-INF/spring/bundle-context.xml
+index 1e19e21..d30f1fe 100644
+--- a/seed-ui/src/webapp/WEB-INF/spring/bundle-context.xml
++++ b/seed-ui/src/webapp/WEB-INF/spring/bundle-context.xml
+@@ -61,9 +61,10 @@
+    <osgi:reference id="sampleActionService"
+          interface="__packageName__.services.SampleActionService" />
+ 
++   <!-- [removable-chassis-code] -->
+    <osgi:reference id="chassisService"
+                    interface="__packageName__.services.ChassisService" />
+-
++   <!-- [end-chassis-code] -->
+ 
+ </beans>
+ 
+diff --git a/seed-ui/src/webapp/WEB-INF/web-with-proxy.xml b/seed-ui/src/webapp/WEB-INF/web-with-proxy.xml
+new file mode 100644
+index 0000000..f927dd0
+--- /dev/null
++++ b/seed-ui/src/webapp/WEB-INF/web-with-proxy.xml
+@@ -0,0 +1,36 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
++   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
++
++   <display-name>__projectName-ui__</display-name>
++
++   <!--
++      Configuration for plugins using the http proxy servlet in production.
++
++      => For testing, change targetUri http://localhost:3000 to your back-end URL.
++
++      => In production, you can parameterize the proxy URL with query parameters as explained
++         at https://github.com/mitre/HTTP-Proxy-Servlet:
++
++      <param-value>http://{_subHost}.behindfirewall.mycompany.com:{_port}/{_path}</param-value>
++    -->
++
++   <servlet>
++      <servlet-name>httpproxyservlet</servlet-name>
++      <servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
++      <init-param>
++         <param-name>targetUri</param-name>
++         <param-value>http://localhost:3000</param-value>
++      </init-param>
++      <init-param>
++         <param-name>log</param-name>
++         <param-value>true</param-value>
++      </init-param>
++   </servlet>
++   <servlet-mapping>
++      <servlet-name>httpproxyservlet</servlet-name>
++      <url-pattern>/rest/*</url-pattern>
++   </servlet-mapping>
++
++</web-app>
+\ No newline at end of file
+diff --git a/seed-ui/src/webapp/WEB-INF/web.xml b/seed-ui/src/webapp/WEB-INF/web.xml
+index 86d10e0..da72c4e 100644
+--- a/seed-ui/src/webapp/WEB-INF/web.xml
++++ b/seed-ui/src/webapp/WEB-INF/web.xml
+@@ -3,7 +3,7 @@
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+ 
+-   <!-- DO NOT CHANGE the configuration generated by the HTML project wizard -->
++   <!-- Standard configuration for plugins using Java services and Spring MVC controllers -->
+ 
+    <display-name>__projectName-ui__</display-name>
+ 
+@@ -31,7 +31,7 @@
+       <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+ 
+-   <!-- required filter to manage http sessions -->
++   <!-- Required filter to manage http sessions -->
+    <filter>
+       <filter-name>sessionManagementFilter</filter-name>
+       <filter-class>com.vmware.vise.security.SessionManagementFilter</filter-class>
+diff --git a/seed-ui/src/webapp/locales/__bundleName___en_US.properties b/seed-ui/src/webapp/locales/__bundleName___en_US.properties
+index 9ec19ae..33d05eb 100644
+--- a/seed-ui/src/webapp/locales/__bundleName___en_US.properties
++++ b/seed-ui/src/webapp/locales/__bundleName___en_US.properties
+@@ -51,9 +51,7 @@ host.status = Status
+ host.model = Model
+ host.vms = Virtual Machines
+ 
+-# Chassis resources
+-# [removable-chassis-code]
+-
++# Chassis resources [removable-chassis-code]
+ chassisLabel = Chassis
+ chassisPlural = Chassis
+ chassis.monitor.view1 = Monitor view 1
+@@ -84,7 +82,7 @@ chassis.createAction = Add a Chassis
+ createAction.nameTaken = A chassis named {0} already exists!
+ editAction.notFound = Update failed, the chassis was not found on the server.
+ deleteAction.notFound = The chassis was not found on the server.
+-
++# [end-chassis-code]
+ 
+ # ------------- Icons used in plugin.xml -------------
+ # Those are handled by the vSphere Client platform, they must
+diff --git a/seed-ui/src/webapp/locales/__bundleName___fr_FR.properties b/seed-ui/src/webapp/locales/__bundleName___fr_FR.properties
+index aad57b1..fd1c438 100644
+--- a/seed-ui/src/webapp/locales/__bundleName___fr_FR.properties
++++ b/seed-ui/src/webapp/locales/__bundleName___fr_FR.properties
+@@ -51,8 +51,7 @@ host.status = Statut
+ host.model = Modèle
+ host.vms = Machines Virtuelles
+ 
+-# Chassis resources
+-# [removable-chassis-code]
++# Chassis resources # [removable-chassis-code]
+ 
+ chassisLabel = Chassis
+ chassisPlural = Chassis
+@@ -84,7 +83,7 @@ chassis.createAction = Ajouter un Chassis
+ createAction.nameTaken = Un chassis nommé {0} existe déjà!
+ editAction.notFound = Le chassis n'existe pas sur le serveur.
+ deleteAction.notFound = Le chassis n'existe pas sur le serveur.
+-
++# [end-chassis-code]
+ 
+ # ------------- Icons used in plugin.xml -------------
+ # Those are handled by the vSphere Client platform, they must
+diff --git a/seed-ui/src/webapp/plugin.xml b/seed-ui/src/webapp/plugin.xml
+index cc10399..1e960a3 100644
+--- a/seed-ui/src/webapp/plugin.xml
++++ b/seed-ui/src/webapp/plugin.xml
+@@ -216,8 +216,8 @@
+       </metadata>
+    </extension>
+ 
+-   <!-- ************************ CHASSIS OBJECTS EXTENSIONS ***************************** -->
+    <!-- [removable-chassis-code] -->
++   <!-- ************************ CHASSIS OBJECTS EXTENSIONS ***************************** -->
+ 
+    <!-- Add an app.name node to the Virtual Infrastructure view of the LHS object navigator.
+        This category node is used below for the chassis collection -->
+@@ -579,4 +579,5 @@
+       </object>
+    </extension>
+ 
++   <!-- [end-chassis-code] -->
+ </plugin>
+diff --git a/seed-ui/tools/build-plugin-no-java.bat b/seed-ui/tools/build-plugin-no-java.bat
+new file mode 100755
+index 0000000..f462d80
+--- /dev/null
++++ b/seed-ui/tools/build-plugin-no-java.bat
+@@ -0,0 +1,26 @@
++@echo off
++REM --- Windows script
++REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
++
++@setlocal
++@IF not defined ANT_HOME (
++   @echo BUILD FAILED: You must set the env variable ANT_HOME to your Apache Ant folder
++   goto end
++)
++@IF not defined VSPHERE_SDK_HOME (
++   @echo BUILD FAILED: You must set the env variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   goto end
++)
++@IF not defined FLEX_HOME (
++   @echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   @set FLEX_HOME=%VSPHERE_SDK_HOME%\resources\flex_sdk_4.6.0.23201_vmw
++)
++@IF not exist "%VSPHERE_SDK_HOME%\libs\vsphere-client-lib.swc" (
++   @echo BUILD FAILED: VSPHERE_SDK_HOME is not set to a valid vSphere Client SDK folder
++   @echo %VSPHERE_SDK_HOME%\libs\vsphere-client-lib.swc is missing
++   goto end
++)
++
++@call "%ANT_HOME%\bin\ant"  -DnoJava=true -f %~dp0\build-plugin-package.xml
++
++:end
+diff --git a/seed-ui/tools/build-plugin-no-java.sh b/seed-ui/tools/build-plugin-no-java.sh
+new file mode 100755
+index 0000000..388b988
+--- /dev/null
++++ b/seed-ui/tools/build-plugin-no-java.sh
+@@ -0,0 +1,26 @@
++#!/bin/sh
++# Mac OS script
++# Note: if Ant runs out of memory try defining ANT_OPTS=-Xmx512M
++
++if [ -z "$ANT_HOME" ] || [ ! -f "${ANT_HOME}"/bin/ant ]
++then
++   echo BUILD FAILED: You must set the environment variable ANT_HOME to your Apache Ant folder
++   exit 1
++fi
++
++if [ -z "$VSPHERE_SDK_HOME" ] || [ ! -f "${VSPHERE_SDK_HOME}"/libs/vsphere-client-lib.jar ]
++then
++   echo BUILD FAILED: You must set the environment variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   exit 1
++fi
++
++if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
++ then
++   echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
++fi
++
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant  -DnoJava=true -f $toolsDir/build-plugin-package.xml
++
++exit 0
+diff --git a/seed-ui/tools/build-plugin-package.bat b/seed-ui/tools/build-plugin-package.bat
+index 0b6886a..fbd5095 100755
+--- a/seed-ui/tools/build-plugin-package.bat
++++ b/seed-ui/tools/build-plugin-package.bat
+@@ -21,6 +21,6 @@ REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
+    goto end
+ )
+ 
+-@call "%ANT_HOME%\bin\ant" -f build-plugin-package.xml
++@call "%ANT_HOME%\bin\ant" -f %~dp0\build-plugin-package.xml
+ 
+ :end
+diff --git a/seed-ui/tools/build-plugin-package.sh b/seed-ui/tools/build-plugin-package.sh
+index 9c8b053..190401f 100755
+--- a/seed-ui/tools/build-plugin-package.sh
++++ b/seed-ui/tools/build-plugin-package.sh
+@@ -20,6 +20,7 @@ if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
+    export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
+ fi
+ 
+-"${ANT_HOME}"/bin/ant -f build-plugin-package.xml
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -f $toolsDir/build-plugin-package.xml
+ 
+ exit 0
+diff --git a/seed-ui/tools/build-plugin-package.xml b/seed-ui/tools/build-plugin-package.xml
+index 84eedbc..6f441e3 100755
+--- a/seed-ui/tools/build-plugin-package.xml
++++ b/seed-ui/tools/build-plugin-package.xml
+@@ -1,6 +1,8 @@
+ <project name="build-plugin-package" default="build" >
+    <description>
+-       Creates the plugin package folder from __projectName-ui__ and __projectName-service__:
++      - When called without argument this script builds a standard plugin package folder,
++        using __projectName-ui__ and __projectName-service__, with this structure:
++
+              __pluginName__
+                   plugin-package.xml
+                   /plugins
+@@ -8,6 +10,10 @@
+                      __projectName-ui__.war
+                      __projectName-service__.jar
+ 
++      - When called with "-DuseHttpProxy" the plugin package is built using the http-proxy-servle,
++        i.e. __projectName-service__.jar is replaced by http-proxy-servlet.jar.
++
++      - When called with "-DnoJava" the plugin package is build without any java service.
+    </description>
+ 
+    <property environment="env"/>
+@@ -15,24 +21,73 @@
+    <property name="BUILD_DIR" value="${basedir}/../target"/>
+    <property name="SERVICE_DIR" value="${basedir}/../../__projectName-service__"/>
+ 
++   <!-- Conditional build variables -->
++   <property name="USE_HTTP_PROXY" value="${useHttpProxy}"/>
++   <property name="NO_JAVA" value="${noJava}"/>
++
++   <target name="build" depends="buildCheck, buildUiWar, buildServiceJar, createPluginPackageDir,
++         createPluginProxyPackageDir, createPluginNoJavaPackageDir, copyPluginPackageDir">
++      <echo level="info">*** You must restart the Virgo server to use the new plugin package! ***</echo>
++   </target>
+ 
+-   <target name="build" depends="buildUiWar, buildServiceJar, createPluginPackageDir"/>
++   <target name="buildCheck">
++      <condition property="NORMAL_BUILD">
++         <and>
++            <isfalse value="${USE_HTTP_PROXY}"/>
++            <isfalse value="${NO_JAVA}"/>
++         </and>
++      </condition>
++   </target>
+ 
+    <target name="buildUiWar">
+-      <ant antfile="${basedir}/build-war.xml" dir="${basedir}" inheritAll="false"/>
++      <ant antfile="${basedir}/build-war.xml" dir="${basedir}" inheritAll="true"/>
+    </target>
+ 
+-   <target name="buildServiceJar">
++   <target name="buildServiceJar" if="${NORMAL_BUILD}">
+       <ant antfile="${SERVICE_DIR}/tools/build-java.xml" dir="${SERVICE_DIR}/tools" inheritAll="false"/>
+    </target>
+ 
+-   <target name="createPluginPackageDir">
++   <target name="createPluginPackageDir" if="${NORMAL_BUILD}">
+       <mkdir dir="${BUILD_DIR}/__pluginName__" />
+       <mkdir dir="${BUILD_DIR}/__pluginName__/plugins" />
+       <copy todir="${BUILD_DIR}/__pluginName__" file="./plugin-package.xml"/>
+       <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${BUILD_DIR}/__projectName-ui__.war"/>
+       <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${SERVICE_DIR}/target/__projectName-service__.jar"/>
++      <!-- gson-2.3.1.jar is a 3rd party lib used by the service bundle -->
+       <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${VSPHERE_SDK_HOME}/libs/gson-2.3.1.jar"/>
+    </target>
+ 
++   <target name="createPluginProxyPackageDir" if="${USE_HTTP_PROXY}"
++           depends="http-proxy-servlet-check, http-proxy-servlet-warn">
++      <mkdir dir="${BUILD_DIR}/__pluginName__" />
++      <mkdir dir="${BUILD_DIR}/__pluginName__/plugins" />
++      <copy tofile="${BUILD_DIR}/__pluginName__/plugin-package.xml" file="./plugin-proxy-package.xml"/>
++      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${BUILD_DIR}/__projectName-ui__.war"/>
++      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${basedir}/../tools/http-proxy-servlet.jar"/>
++   </target>
++
++   <target name="http-proxy-servlet-check" if="${USE_HTTP_PROXY}">
++      <available file="http-proxy-servlet.jar"  property="http-proxy-servlet.found"/>
++   </target>
++
++   <target name="http-proxy-servlet-warn"  if="${USE_HTTP_PROXY}" unless="${http-proxy-servlet.found}">
++      <fail message="MISSING http-proxy-servlet.jar IN /tools!
++      ${line.separator}=> COPY http-proxy-servlet.jar FROM plugin-seed/tools/http-proxy-tool/http-proxy-tool-plugin/plugins
++TO THIS /tools FOLDER."/>
++   </target>
++
++   <target name="createPluginNoJavaPackageDir" if="${NO_JAVA}">
++      <mkdir dir="${BUILD_DIR}/__pluginName__" />
++      <mkdir dir="${BUILD_DIR}/__pluginName__/plugins" />
++      <copy tofile="${BUILD_DIR}/__pluginName__/plugin-package.xml" file="./plugin-nojava-package.xml"/>
++      <copy todir="${BUILD_DIR}/__pluginName__/plugins" file="${BUILD_DIR}/__projectName-ui__.war"/>
++   </target>
++
++   <target name="copyPluginPackageDir">
++      <delete dir="${VSPHERE_SDK_HOME}/vsphere-ui/plugin-packages/__pluginName__" quiet="true"/>
++      <copy todir="${VSPHERE_SDK_HOME}/vsphere-ui/plugin-packages/__pluginName__">
++         <fileset dir="${BUILD_DIR}/__pluginName__"/>
++      </copy>
++   </target>
++
+ </project>
+\ No newline at end of file
+diff --git a/seed-ui/tools/build-plugin-with-proxy.bat b/seed-ui/tools/build-plugin-with-proxy.bat
+new file mode 100755
+index 0000000..3304e29
+--- /dev/null
++++ b/seed-ui/tools/build-plugin-with-proxy.bat
+@@ -0,0 +1,26 @@
++@echo off
++REM --- Windows script
++REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
++
++@setlocal
++@IF not defined ANT_HOME (
++   @echo BUILD FAILED: You must set the env variable ANT_HOME to your Apache Ant folder
++   goto end
++)
++@IF not defined VSPHERE_SDK_HOME (
++   @echo BUILD FAILED: You must set the env variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   goto end
++)
++@IF not defined FLEX_HOME (
++   @echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   @set FLEX_HOME=%VSPHERE_SDK_HOME%\resources\flex_sdk_4.6.0.23201_vmw
++)
++@IF not exist "%VSPHERE_SDK_HOME%\libs\vsphere-client-lib.swc" (
++   @echo BUILD FAILED: VSPHERE_SDK_HOME is not set to a valid vSphere Client SDK folder
++   @echo %VSPHERE_SDK_HOME%\libs\vsphere-client-lib.swc is missing
++   goto end
++)
++
++@call "%ANT_HOME%\bin\ant"  -DuseHttpProxy=true -f %~dp0\build-plugin-package.xml
++
++:end
+diff --git a/seed-ui/tools/build-plugin-with-proxy.sh b/seed-ui/tools/build-plugin-with-proxy.sh
+new file mode 100755
+index 0000000..4d2b714
+--- /dev/null
++++ b/seed-ui/tools/build-plugin-with-proxy.sh
+@@ -0,0 +1,26 @@
++#!/bin/sh
++# Mac OS script
++# Note: if Ant runs out of memory try defining ANT_OPTS=-Xmx512M
++
++if [ -z "$ANT_HOME" ] || [ ! -f "${ANT_HOME}"/bin/ant ]
++then
++   echo BUILD FAILED: You must set the environment variable ANT_HOME to your Apache Ant folder
++   exit 1
++fi
++
++if [ -z "$VSPHERE_SDK_HOME" ] || [ ! -f "${VSPHERE_SDK_HOME}"/libs/vsphere-client-lib.jar ]
++then
++   echo BUILD FAILED: You must set the environment variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   exit 1
++fi
++
++if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
++ then
++   echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
++fi
++
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant  -DuseHttpProxy=true -f $toolsDir/build-plugin-package.xml
++
++exit 0
+diff --git a/seed-ui/tools/build-war-no-java.bat b/seed-ui/tools/build-war-no-java.bat
+new file mode 100755
+index 0000000..0a4a1a6
+--- /dev/null
++++ b/seed-ui/tools/build-war-no-java.bat
+@@ -0,0 +1,26 @@
++@echo off
++REM --- Windows script
++REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
++
++@setlocal
++@IF not defined ANT_HOME (
++   @echo BUILD FAILED: You must set the env variable ANT_HOME to your Apache Ant folder
++   goto end
++)
++@IF not defined VSPHERE_SDK_HOME (
++   @echo BUILD FAILED: You must set the env variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   goto end
++)
++@IF not defined FLEX_HOME (
++   @echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   @set FLEX_HOME=%VSPHERE_SDK_HOME%\resources\flex_sdk_4.6.0.23201_vmw
++)
++@IF not exist "%VSPHERE_SDK_HOME%\libs\vsphere-client-lib.jar" (
++   @echo BUILD FAILED: VSPHERE_SDK_HOME is not set to a valid vSphere Client SDK folder
++   @echo %VSPHERE_SDK_HOME%\libs\vsphere-client-lib.jar is missing
++   goto end
++)
++
++@call "%ANT_HOME%\bin\ant" -DnoJava=true -f %~dp0\build-war.xml
++
++:end
+diff --git a/seed-ui/tools/build-war-no-java.sh b/seed-ui/tools/build-war-no-java.sh
+new file mode 100755
+index 0000000..e280d0b
+--- /dev/null
++++ b/seed-ui/tools/build-war-no-java.sh
+@@ -0,0 +1,26 @@
++#!/bin/sh
++# Mac OS script
++# Note: if Ant runs out of memory try defining ANT_OPTS=-Xmx512M
++
++if [ -z "$ANT_HOME" ] || [ ! -f "${ANT_HOME}"/bin/ant ]
++then
++   echo BUILD FAILED: You must set the environment variable ANT_HOME to your Apache Ant folder
++   exit 1
++fi
++
++if [ -z "$VSPHERE_SDK_HOME" ] || [ ! -f "${VSPHERE_SDK_HOME}"/libs/vsphere-client-lib.jar ]
++then
++   echo BUILD FAILED: You must set the environment variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   exit 1
++fi
++
++if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
++ then
++   echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
++fi
++
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -DnoJava=true -f $toolsDir/build-war.xml
++
++exit 0
+diff --git a/seed-ui/tools/build-war-with-proxy.bat b/seed-ui/tools/build-war-with-proxy.bat
+new file mode 100755
+index 0000000..2a5b0ea
+--- /dev/null
++++ b/seed-ui/tools/build-war-with-proxy.bat
+@@ -0,0 +1,26 @@
++@echo off
++REM --- Windows script
++REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
++
++@setlocal
++@IF not defined ANT_HOME (
++   @echo BUILD FAILED: You must set the env variable ANT_HOME to your Apache Ant folder
++   goto end
++)
++@IF not defined VSPHERE_SDK_HOME (
++   @echo BUILD FAILED: You must set the env variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   goto end
++)
++@IF not defined FLEX_HOME (
++   @echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   @set FLEX_HOME=%VSPHERE_SDK_HOME%\resources\flex_sdk_4.6.0.23201_vmw
++)
++@IF not exist "%VSPHERE_SDK_HOME%\libs\vsphere-client-lib.jar" (
++   @echo BUILD FAILED: VSPHERE_SDK_HOME is not set to a valid vSphere Client SDK folder
++   @echo %VSPHERE_SDK_HOME%\libs\vsphere-client-lib.jar is missing
++   goto end
++)
++
++@call "%ANT_HOME%\bin\ant" -DuseHttpProxy=true -f %~dp0\build-war.xml
++
++:end
+diff --git a/seed-ui/tools/build-war-with-proxy.sh b/seed-ui/tools/build-war-with-proxy.sh
+new file mode 100755
+index 0000000..d5df3a2
+--- /dev/null
++++ b/seed-ui/tools/build-war-with-proxy.sh
+@@ -0,0 +1,26 @@
++#!/bin/sh
++# Mac OS script
++# Note: if Ant runs out of memory try defining ANT_OPTS=-Xmx512M
++
++if [ -z "$ANT_HOME" ] || [ ! -f "${ANT_HOME}"/bin/ant ]
++then
++   echo BUILD FAILED: You must set the environment variable ANT_HOME to your Apache Ant folder
++   exit 1
++fi
++
++if [ -z "$VSPHERE_SDK_HOME" ] || [ ! -f "${VSPHERE_SDK_HOME}"/libs/vsphere-client-lib.jar ]
++then
++   echo BUILD FAILED: You must set the environment variable VSPHERE_SDK_HOME to your vSphere Client SDK folder
++   exit 1
++fi
++
++if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
++ then
++   echo Using the Adobe Flex SDK files bundled with the vSphere Client SDK
++   export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
++fi
++
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -DuseHttpProxy=true -f $toolsDir/build-war.xml
++
++exit 0
+diff --git a/seed-ui/tools/build-war.bat b/seed-ui/tools/build-war.bat
+index 2624fe1..af51775 100755
+--- a/seed-ui/tools/build-war.bat
++++ b/seed-ui/tools/build-war.bat
+@@ -21,6 +21,6 @@ REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
+    goto end
+ )
+ 
+-@call "%ANT_HOME%\bin\ant" -f build-war.xml
++@call "%ANT_HOME%\bin\ant" -f %~dp0\build-war.xml
+ 
+ :end
+diff --git a/seed-ui/tools/build-war.sh b/seed-ui/tools/build-war.sh
+index 7cdee5b..ed0339a 100755
+--- a/seed-ui/tools/build-war.sh
++++ b/seed-ui/tools/build-war.sh
+@@ -20,6 +20,7 @@ if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
+    export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
+ fi
+ 
+-"${ANT_HOME}"/bin/ant -f build-war.xml
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -f $toolsDir/build-war.xml
+ 
+ exit 0
+diff --git a/seed-ui/tools/build-war.xml b/seed-ui/tools/build-war.xml
+index 795bbeb..1401ca0 100755
+--- a/seed-ui/tools/build-war.xml
++++ b/seed-ui/tools/build-war.xml
+@@ -2,10 +2,6 @@
+    <description>
+        Ant build script for HTML plugin. It outputs a .war file that can be
+        copied in the "plugins" folder of the plugin-package.
+-       -----------------------------------------------------------------------
+-       NOTE: you don't need to use this script during development with Eclipse
+-       except to compile resources, see the compile-resources target below.
+-       -----------------------------------------------------------------------
+    </description>
+ 
+    <!-- Properties specific to this project -->
+@@ -23,6 +19,39 @@
+    <property name="DIST_DIR" value="${basedir}/../dist"/>
+    <property name="WAR_NAME" value="${PROJECT_NAME}.war"/>
+ 
++   <!-- Conditional build variables to use the Http Proxy tool or not -->
++   <property name="USE_HTTP_PROXY" value="${useHttpProxy}"/>
++   <property name="NO_JAVA" value="${noJava}"/>
++   <condition property="DEFAULT_BUILD">
++      <and>
++         <isfalse value="${USE_HTTP_PROXY}"/>
++         <isfalse value="${NO_JAVA}"/>
++      </and>
++   </condition>
++
++   <condition property="MANIFEST_FILE" value="MANIFEST.MF">
++      <istrue value="${DEFAULT_BUILD}"/>
++   </condition>
++   <condition property="MANIFEST_FILE" value="MANIFEST-with-proxy.MF">
++      <istrue value="${USE_HTTP_PROXY}"/>
++   </condition>
++   <condition property="MANIFEST_FILE" value="MANIFEST-no-java.MF">
++      <istrue value="${NO_JAVA}"/>
++   </condition>
++
++   <condition property="WEB.XML" value="web.xml">
++      <istrue value="${DEFAULT_BUILD}"/>
++   </condition>
++   <condition property="WEB.XML" value="web-with-proxy.xml">
++      <istrue value="${USE_HTTP_PROXY}"/>
++   </condition>
++   <condition property="WEB.XML" value="web-no-java.xml">
++      <istrue value="${NO_JAVA}"/>
++   </condition>
++   <condition property="BUNDLE-CONTEXT.XML" value="" else="bundle-context.xml">
++      <istrue value="${DEFAULT_BUILD}"/>
++   </condition>
++
+    <!-- Import the definition of mxmlc-macro -->
+    <import file="${VSPHERE_SDK_HOME}/resources/flex-macros.xml"/>
+ 
+@@ -37,19 +66,36 @@ ${line.separator} Then rename it playerglobal.swc and move it to ${FLEX_HOME}/fr
+    </target>
+ 
+    <!-- clean the generated build files -->
+-   <target name="clean">
++   <target name="init">
+       <delete dir="${BUILD_DIR}" />
++
++      <condition property="isMac">
++         <os family="mac" />
++      </condition>
++      <condition property="isWindows">
++         <os family="windows" />
++      </condition>
+    </target>
+ 
+    <!-- normal build -->
+-   <target name="ng-build">
++   <target name="ng-build" depends="build-mac, build-windows"></target>
++
++   <target name="build-mac" if="isMac">
+       <exec executable="ng">
+          <arg value="build"/>
+       </exec>
+    </target>
+ 
++   <target name="build-windows" if="isWindows">
++      <exec executable="ng.cmd">
++         <arg value="build"/>
++      </exec>
++   </target>
++
+    <!-- production build, including the AOT option required to lazy loaded modules -->
+-   <target name="ng-build-prod">
++   <target name="ng-build-prod" depends="build-prod-mac, build-prod-windows"></target>
++
++   <target name="build-prod-mac" if="isMac">
+       <exec executable="ng">
+          <arg value="build"/>
+          <arg value="--prod"/>
+@@ -57,6 +103,15 @@ ${line.separator} Then rename it playerglobal.swc and move it to ${FLEX_HOME}/fr
+       </exec>
+    </target>
+ 
++   <target name="build-prod-windows" if="isWindows">
++      <exec executable="ng.cmd">
++         <arg value="build"/>
++         <arg value="--prod"/>
++         <arg value="--aot"/>
++      </exec>
++   </target>
++
++
+    <!-- Compile separate bundle resource files ${PROJECT_NAME}-{locale}.swf.
+         This file name must match the name declared in plugin.xml <resource> tag.
+    -->
+@@ -127,17 +182,23 @@ ${line.separator} Then rename it playerglobal.swc and move it to ${FLEX_HOME}/fr
+ 
+    <!--
+       Create the war bundle.
+-      FOR PRODUCTION, replace ng-build by ng-build-prod below.
++      FOR PRODUCTION, replace ng-build by ng-build-prod on the <target> line below.
+     -->
+-   <target name="make-bundle"  depends="clean, ng-build, compile-resources">
++   <target name="make-bundle"  depends="init, ng-build, compile-resources">
+       <mkdir dir="${BUILD_DIR}/webapp/"/>
+       <copy todir="${BUILD_DIR}/webapp">
+          <fileset dir="${DIST_DIR}"/>
+-         <fileset dir="${SRC_DIR}/webapp"/>
++         <fileset dir="${SRC_DIR}/webapp">
++            <exclude name="**/MANIFEST*.MF"/>
++            <exclude name="**/web*.xml"/>
++         </fileset>
+       </copy>
++      <copy file="${SRC_DIR}/webapp/WEB-INF/${WEB.XML}" tofile="${BUILD_DIR}/webapp/WEB-INF/web.xml"
++            failonerror="false" quiet="true"/>
++      <delete file="${BUILD_DIR}/webapp/WEB-INF/spring/${BUNDLE-CONTEXT.XML}" quiet="true"/>
+ 
+       <jar destfile="${BUILD_DIR}/${WAR_NAME}"
+-           manifest="${WEBAPP_DIR}/META-INF/MANIFEST.MF"
++           manifest="${WEBAPP_DIR}/META-INF/${MANIFEST_FILE}"
+            basedir="${BUILD_DIR}/webapp">
+       </jar>
+    </target>
+diff --git a/seed-ui/tools/convert-properties.bat b/seed-ui/tools/convert-properties.bat
+index f71d888..988954d 100755
+--- a/seed-ui/tools/convert-properties.bat
++++ b/seed-ui/tools/convert-properties.bat
+@@ -8,6 +8,6 @@ REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
+    goto end
+ )
+ 
+-@call "%ANT_HOME%\bin\ant" -f convert-properties.xml convert-properties
++@call "%ANT_HOME%\bin\ant" -f %~dp0\convert-properties.xml convert-properties
+ 
+ :end
+diff --git a/seed-ui/tools/convert-properties.sh b/seed-ui/tools/convert-properties.sh
+index b21a146..03d640f 100755
+--- a/seed-ui/tools/convert-properties.sh
++++ b/seed-ui/tools/convert-properties.sh
+@@ -8,6 +8,7 @@ then
+    exit 1
+ fi
+ 
+-"${ANT_HOME}"/bin/ant -f build-war.xml convert-properties
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -f $toolsDir/build-war.xml convert-properties
+ 
+ exit 0
+diff --git a/seed-ui/tools/deploy-war.bat b/seed-ui/tools/deploy-war.bat
+index 35d1b01..55d51d9 100755
+--- a/seed-ui/tools/deploy-war.bat
++++ b/seed-ui/tools/deploy-war.bat
+@@ -21,6 +21,6 @@ REM --- (if Ant runs out of memory try defining ANT_OPTS=-Xmx512M)
+    goto end
+ )
+ 
+-@call "%ANT_HOME%\bin\ant" -f deploy-war.xml
++@call "%ANT_HOME%\bin\ant" -f %~dp0\deploy-war.xml
+ 
+ :end
+diff --git a/seed-ui/tools/deploy-war.sh b/seed-ui/tools/deploy-war.sh
+index 3df1095..31ccc03 100755
+--- a/seed-ui/tools/deploy-war.sh
++++ b/seed-ui/tools/deploy-war.sh
+@@ -20,6 +20,7 @@ if [ -z "$FLEX_HOME" ] || [ ! -f "$FLEX_HOME"/bin/mxmlc ]
+    export FLEX_HOME="${VSPHERE_SDK_HOME}"/resources/flex_sdk_4.6.0.23201_vmw
+ fi
+ 
+-"${ANT_HOME}"/bin/ant -f deploy-war.xml
++toolsDir=`dirname $0`
++"${ANT_HOME}"/bin/ant -f $toolsDir/deploy-war.xml
+ 
+ exit 0
+diff --git a/seed-ui/tools/plugin-nojava-package.xml b/seed-ui/tools/plugin-nojava-package.xml
+new file mode 100644
+index 0000000..00d5fb1
+--- /dev/null
++++ b/seed-ui/tools/plugin-nojava-package.xml
+@@ -0,0 +1,38 @@
++<?xml version="1.0" encoding="UTF-8"?>
++
++<!--
++   Plugin package manifest for __pluginName__.
++
++   *** VERSION FOR PLUGINS WITHOUT JAVA SERVICES (<bundlesOrder> contains just the UI .war bundle) ***
++
++   See the SDK doc on packaging and registering your plugin with vCenter at
++   http://pubs.vmware.com/vsphere-65/topic/com.vmware.wcsdk.pg.doc/GUID-9E1C39FD-F649-42D7-8CFF-9BFF1063EC59.html
++
++   id: must be unique and should match the vCenter extension key
++   version: should match the vCenter extension version
++   type: keep "html" for this plugin to be deployed in the vSphere HTML client.
++   name: short name displayed in the Administration < Client plugins view
++   scope: "global" means to deploy this plugin with individual bundles in server/pickup for dev mode
++-->
++<pluginPackage id="__packageName__" version="1.0.0" type="html" name="__pluginName__"
++               description="Add plugin description" vendor="Add vendor"
++
++               scope="global">  <!-- REMOVE scope="global" FOR PRODUCTION! -->
++
++   <dependencies>
++      <!--
++         This is the required dependency on the core vSphere Client package.
++         version="6.0.0" means that this plugin will be loaded by vSphere Client 6.0.0 and up,
++         so it should be the default if you verified that it is compatible with version 6.0.
++         Otherwise put version="6.5.0" to have your plugin loaded only by vSphere Client 6.5.0 and up.
++       -->
++      <pluginPackage id="com.vmware.vsphere.client" version="6.0.0" />
++
++      <!-- you may add dependencies on other plugin packages if necessary -->
++   </dependencies>
++
++   <bundlesOrder>
++      <bundle id="__packageName__.__projectName-ui__" />
++   </bundlesOrder>
++
++</pluginPackage>
+diff --git a/seed-ui/tools/plugin-package.xml b/seed-ui/tools/plugin-package.xml
+index 554a6db..56f00b8 100644
+--- a/seed-ui/tools/plugin-package.xml
++++ b/seed-ui/tools/plugin-package.xml
+@@ -1,18 +1,23 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ 
+ <!--
+-   Plugin package metadata for __pluginName__
+-   See the SDK doc on packaging and registering your plugin with vCenter.
++   Plugin package manifest for __pluginName__.
++
++   *** STANDARD VERSION FOR PLUGINS WITH JAVA SERVICES (see <bundlesOrder> below) ***
++
++   See the SDK doc on packaging and registering your plugin with vCenter at
++   http://pubs.vmware.com/vsphere-65/topic/com.vmware.wcsdk.pg.doc/GUID-9E1C39FD-F649-42D7-8CFF-9BFF1063EC59.html
+ 
+    id: must be unique and should match the vCenter extension key
+    version: should match the vCenter extension version
+    type: keep "html" for this plugin to be deployed in the vSphere HTML client.
+    name: short name displayed in the Administration < Client plugins view
+    scope: "global" means to deploy this plugin with individual bundles in server/pickup for dev mode
+-          This should be removed for production.
+ -->
+-<pluginPackage id="__packageName__" version="1.0.0" type="html" name="__pluginName__" scope="global"
+-               description="Add plugin description" vendor="Add vendor">
++<pluginPackage id="__packageName__" version="1.0.0" type="html" name="__pluginName__"
++               description="Add plugin description" vendor="Add vendor"
++
++               scope="global">  <!-- REMOVE scope="global" FOR PRODUCTION! -->
+ 
+    <dependencies>
+       <!--
+@@ -29,7 +34,6 @@
+    <bundlesOrder>
+       <!--
+          List of jar bundles from the /plugins directory in loading order.
+-         War bundles don't need to be listed, they will be deployed afterward.
+          Bundle Ids must match the Bundle-SymbolicName in each bundle's MANIFEST.MF!
+       -->
+       <bundle id="com.google.gson" />
+diff --git a/seed-ui/tools/plugin-proxy-package.xml b/seed-ui/tools/plugin-proxy-package.xml
+new file mode 100644
+index 0000000..04b82ad
+--- /dev/null
++++ b/seed-ui/tools/plugin-proxy-package.xml
+@@ -0,0 +1,39 @@
++<?xml version="1.0" encoding="UTF-8"?>
++
++<!--
++   Plugin package manifest for __pluginName__.
++
++   *** VERSION FOR PLUGINS WITH HTTP-PROXY-SERVLET (see <bundlesOrder> below) ***
++
++   See the SDK doc on packaging and registering your plugin with vCenter at
++   http://pubs.vmware.com/vsphere-65/topic/com.vmware.wcsdk.pg.doc/GUID-9E1C39FD-F649-42D7-8CFF-9BFF1063EC59.html
++
++   id: must be unique and should match the vCenter extension key
++   version: should match the vCenter extension version
++   type: keep "html" for this plugin to be deployed in the vSphere HTML client.
++   name: short name displayed in the Administration < Client plugins view
++   scope: "global" means to deploy this plugin with individual bundles in server/pickup for dev mode
++-->
++<pluginPackage id="__packageName__" version="1.0.0" type="html" name="__pluginName__"
++               description="Add plugin description" vendor="Add vendor"
++
++               scope="global">  <!-- REMOVE scope="global" FOR PRODUCTION! -->
++
++   <dependencies>
++      <!--
++         This is the required dependency on the core vSphere Client package.
++         version="6.0.0" means that this plugin will be loaded by vSphere Client 6.0.0 and up,
++         so it should be the default if you verified that it is compatible with version 6.0.
++         Otherwise put version="6.5.0" to have your plugin loaded only by vSphere Client 6.5.0 and up.
++       -->
++      <pluginPackage id="com.vmware.vsphere.client" version="6.0.0" />
++
++      <!-- you may add dependencies on other plugin packages if necessary -->
++   </dependencies>
++
++   <bundlesOrder>
++      <bundle id="org.mitre.dsmiley.httpproxy" />
++      <bundle id="__packageName__.__projectName-ui__" />
++   </bundlesOrder>
++
++</pluginPackage>
+diff --git a/seed-ui/tools/remove-chassis-code.sh b/seed-ui/tools/remove-chassis-code.sh
+new file mode 100755
+index 0000000..96ef7dd
+--- /dev/null
++++ b/seed-ui/tools/remove-chassis-code.sh
+@@ -0,0 +1,21 @@
++#!/bin/sh
++
++toolsDir=`dirname $0`
++echo "Remove all chassis related code in this project? Y or N [N]"
++read response
++if [[ $response == "y" || $response == "Y" ]]; then
++   # Remove chassis specific files
++   rm -rf $toolsDir/../src/app/services/chassis
++   rm -f  $toolsDir/../src/app/services/testing/fake-chassis.*
++   rm -rf $toolsDir/../src/app/views/chassis-summary
++   rm -f  $toolsDir/../src/app/views/modals/edit-chassis.component.*
++
++   # Remove chassis code in all other files (.ts, .html, .xml, .properties only)
++   find $toolsDir/../src -type f \( -name '*.ts' -o -name '*.html' -o -name '*.xml' -o -name '*.properties' \) \
++   -exec sed -i '' -e '/removable-chassis-line/d' -e '/removable-chassis-code/,/end-chassis-code/d' {} \;
++
++else
++   echo "-> stopped"
++   exit 1
++fi
++
+diff --git a/tools/http-proxy-tool/MANIFEST.MF b/tools/http-proxy-tool/MANIFEST.MF
+old mode 100755
+new mode 100644
+index 9c625c3..b966fad
+--- a/tools/http-proxy-tool/MANIFEST.MF
++++ b/tools/http-proxy-tool/MANIFEST.MF
+@@ -8,7 +8,6 @@ Bundle-Name: http-proxy-servlet
+ Created-By: Apache Maven 3.3.3
+ Bundle-Vendor: Smiley
+ Bundle-Version: 1.8.0
+-Build-Jdk: 1.8.0_74
+ Bundle-ManifestVersion: 2
+ Bundle-SymbolicName: org.mitre.dsmiley.httpproxy
+ Import-Package: javax.servlet,javax.servlet.http,org.apache.http,org.a
+diff --git a/tools/http-proxy-tool/NOTICE.txt b/tools/http-proxy-tool/NOTICE.txt
+new file mode 100755
+index 0000000..559ca6a
+--- /dev/null
++++ b/tools/http-proxy-tool/NOTICE.txt
+@@ -0,0 +1,4 @@
++This http-proxy-tool uses code from https://github.com/mitre/HTTP-Proxy-Servlet
++It contains a pre-built version of Smiley's HTTP Proxy Servlet in plugins/http-proxy-servlet.jar,
++the MANIFEST.MF has been modified to be able to deploy it on Virgo.
++See README.md for details.
+\ No newline at end of file
+diff --git a/tools/http-proxy-tool/README.md b/tools/http-proxy-tool/README.md
+index 3830105..550383e 100644
+--- a/tools/http-proxy-tool/README.md
++++ b/tools/http-proxy-tool/README.md
+@@ -1,26 +1,77 @@
+ README for http-proxy-tool
+ ==========================
+-http-proxy-tool helps support mock data when your plugin is running in vSphere Client. 
+-It is based on Mitre's proxy servlet https://github.com/mitre/HTTP-Proxy-Servlet.
+ 
+-Before using it you must first build http-proxy-servlet.jar locally!
++http-proxy-tool is provided for two different purposes:
++1) As a development tool, you can use it to support mock data while testing your plugin in vSphere Client. 
++2) As production code, you can integrate it with your plugin where it will serve as a proxy for accessing 
++back-end REST APIs. Because it is a servlet running in the Virgo server it will avoid CORS problems.
+ 
+-#### Installation
++http-proxy-tool is based on Mitre's proxy servlet [https://github.com/mitre/HTTP-Proxy-Servlet].
++A pre-built verison of the servlet is provided for convenience in plugins/http-proxy-servlet.jar.
++See the last section "Rebuilding http-proxy-servlet.jar" if you need to rebuild it.
+ 
+-- Download the source from https://github.com/mitre/HTTP-Proxy-Servlet
+-- Follow their build instructions to build http-proxy-servlet.jar
+-- Replace MANIFEST.MF in the .jar with the one provided here
+-- Copy http-proxy-servlet.jar to http-proxy-tool-plugin/plugins, next to http-proxy-tool.war
+-- Copy the folder http-proxy-tool-plugin to $VSPHERE_SDK_HOME/vsphere-ui/plugin-packages
+-- Restart the Virgo server
++#### Installation as a mock-data proxy (development tool)
+ 
+-#### Usage
++- Copy the folder http-proxy-tool-plugin to your local $VSPHERE_SDK_HOME/vsphere-ui/plugin-packages
++- Restart the Virgo server.
+ 
+-Once http-proxy-tool-plugin is deployed all requests to https://localhost:9443/httpproxy 
++Once http-proxy-tool-plugin is deployed, all HTTP requests to https://localhost:9443/httpproxy 
+ are redirected to http://localhost:3000 where json-server is serving mock data.
+ You can change that configuration in web.xml inside http-proxy-tool.war.
+ 
+-For more details see the plugin-seed documentation "Using mock data in plugin mode"
++For more details, see the plugin-seed documentation "Using mock data in plugin mode".
++
++#### Installation as a REST API proxy (production tool)
++
++- Copy http-proxy-servlet.jar from http-proxy-tool-plugin/plugins/ to your myplugin-ui/tools folder.
++- In myplugin-ui/src/webapp/WEB-INF/web-with-proxy.xml, change http://localhost:3000 to the targetUri
++  for your REST APIs (*)
++- Go to myplugin-ui/tools and run build-plugin-proxy-package.[sh, bat]
++  => This builds a plugin package containing 2 bundles: myplugin-ui.war and http-proxy-servlet.jar
++- Restart the Virgo server.
++
++All HTTP requests sent by the plugin UI code are now proxied to the targetUri defined in web.xml.
++
++For instance, you can verify that the Echo Service page works in Plugin mode when using the default web.xml (*):
++- Each click on the Hello button shows this request in the browser Network console:
++   https://localhost:9443/ui/myplugin/rest/services/echo
++- It is proxied to this URL and hits the json-server echo API:
++   http://localhost:3000/services/echo
++
++On the other hand, the Chassis and the Host data requests fail with 404 because the json-server is not configured to handle those API calls in Plugin mode.
++
++(*) Default web-with-proxy.xml configuration where you need to change the targetUri value:
++(it is renamed web.xml by the script build-plugin-proxy-package)
++````
++   <servlet>
++      <servlet-name>httpproxyservlet</servlet-name>
++      <servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
++      <init-param>
++         <param-name>targetUri</param-name>
++         <param-value>http://localhost:3000</param-value>
++      </init-param>
++      ...
++   </servlet>
++   <servlet-mapping>
++      <servlet-name>httpproxyservlet</servlet-name>
++      <url-pattern>/rest/*</url-pattern>
++   </servlet-mapping>
++````
++
++For more details on using http-proxy-tool in your plugin production version, 
++see the plugin-seed documentation "Integrating http-proxy-servlet to access back-end REST APIs".
++
++
++#### Rebuilding http-proxy-servlet.jar
++
++If you want to rebuild http-proxy-servlet.jar yourself, follow these steps:
++
++- Download the source from https://github.com/mitre/HTTP-Proxy-Servlet
++- Follow the instructions to build the servlet
++- Rename it http-proxy-servlet.jar and copy it to plugins/http-proxy-servlet.jar
++- Replace MANIFEST.MF in http-proxy-servlet.jar with the one provided here
++
++
+ 
+ 
+ 
+diff --git a/tools/http-proxy-tool/http-proxy-tool-plugin/plugin-package.xml b/tools/http-proxy-tool/http-proxy-tool-plugin/plugin-package.xml
+index 84bcc48..8b76fb0 100644
+--- a/tools/http-proxy-tool/http-proxy-tool-plugin/plugin-package.xml
++++ b/tools/http-proxy-tool/http-proxy-tool-plugin/plugin-package.xml
+@@ -1,9 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ 
+ <!-- 
+-   Plugin package for using Mitre's HTTP-Proxy-Servlet in a dev environment,
+-   see https://github.com/mitre/HTTP-Proxy-Servlet
++   Plugin package for using Mitre's HTTP-Proxy-Servlet in a dev environment.
+ 
++   **** THIS SHOULD NOT BE PACKAGED AS IS IN YOUR PRODUCTION PLUGIN ****
++
++   See https://github.com/mitre/HTTP-Proxy-Servlet
+    See README.md for building http-proxy-servlet.jar which must be added to /plugins
+ -->
+ <pluginPackage id="com.vmware.samples.httpproxytool" version="1.0.0" name="httpproxytool" scope="global"
+diff --git a/tools/http-proxy-tool/http-proxy-tool-plugin/plugins/http-proxy-servlet.jar b/tools/http-proxy-tool/http-proxy-tool-plugin/plugins/http-proxy-servlet.jar
+new file mode 100644
+index 0000000..eb10246
+Binary files /dev/null and b/tools/http-proxy-tool/http-proxy-tool-plugin/plugins/http-proxy-servlet.jar differ

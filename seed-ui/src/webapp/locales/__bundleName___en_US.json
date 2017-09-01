@@ -16,6 +16,9 @@
 "button.ok": "Ok",
 "button.cancel": "Cancel",
 
+"common.username.required": "userName is required",
+"common.password.required": "password is required",
+
 "mainView.serviceTest": "Service Test",
 "mainView.clickToCall": "Click to call the EchoService",
 "mainView.helloBtn1": "Hello (popup)",

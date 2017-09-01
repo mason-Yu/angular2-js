@@ -1,0 +1,217 @@
+This is the DIFF between version 0.9.5 and 0.9.7
+Use it to see in details what change!
+
+
+
+diff --git a/seed-ui/src/app/app.component.html b/seed-ui/src/app/app.component.html
+index bcc5b2f..0a47a9a 100644
+--- a/seed-ui/src/app/app.component.html
++++ b/seed-ui/src/app/app.component.html
+@@ -1,5 +1,5 @@
+ <!-- Top left floating icon used to toggle the dev UI components in all views -->
+-<div *ngIf="!gs.isPluginMode()" class="floating-left">
++<div *ngIf="!gs.isPluginMode()" style="float: left; position: absolute; z-index: 3;">
+    <a (click)="gs.toggleDevUI()" class="tooltip tooltip-sm tooltip-bottom-right"
+       role="tooltip" aria-haspopup="true" href="javascript://">
+       <clr-icon [attr.shape]="gs.showDevUI() ? 'remove' : 'plus-circle'" size="16"
+diff --git a/seed-ui/src/app/app.component.scss b/seed-ui/src/app/app.component.scss
+index 4450e5f..30c37c4 100644
+--- a/seed-ui/src/app/app.component.scss
++++ b/seed-ui/src/app/app.component.scss
+@@ -1,12 +1,22 @@
+-.plugin-modal-footer {
+-  @extend .modal-footer !optional;
+-  display: flex;
+-  justify-content: flex-end;
+-  padding-top: 24px;
++// WARNING: these styles are shared with all child components because the flag
++//          encapsulation: ViewEncapsulation.None is set in app.component.ts
++
++// Shared style to display sidenav correctly
++.td-sidenav {
++  vertical-align: top;
++  padding: 0px;
++  background-color: #CFD8DC
++}
++
++// Shared style to display subnav correctly
++.td-subnav {
++  vertical-align: top;
++  width: 100%;
++  padding: 0px;
+ }
+ 
+-.floating-left {
+-  float: left;
+-  position: absolute;
+-  z-index: 3;
++// Lower opacity for dev-ui only elements
++.dev-ui {
++  padding-top: 20px;
++  opacity: 0.6;
+ }
+
+
+ 
+
+ 
+diff --git a/seed-ui/src/app/views/main/main.component.ts b/seed-ui/src/app/views/main/main.component.ts
+index 5e10278..ebf1e27 100644
+--- a/seed-ui/src/app/views/main/main.component.ts
++++ b/seed-ui/src/app/views/main/main.component.ts
+@@ -1,4 +1,5 @@
+-import { Component, Input, OnInit, OnDestroy, ViewChild, Inject, forwardRef } from "@angular/core";
++import { Component, Input, OnInit, OnDestroy, ViewChild, Inject,
++         forwardRef, ChangeDetectorRef } from "@angular/core";
+ import { Subscription } from "rxjs/Subscription";
+ import { TabLink } from "clarity-angular";
+ 
+@@ -7,8 +8,11 @@ import { GlobalsService, RefreshService,
+ AppAlertService, I18nService }   from "../../shared/index";
+ import { WebPlatform } from "../../shared/vSphereClientSdkTypes";
+ import { DialogBoxComponent }  from "../../shared/dev/dialog-box.component";
++import { UserSettingService } from "../../shared/user-settings.service";
++// [removable-chassis-code]
+ import { Chassis } from "../../services/chassis/chassis.model";
+ import { ChassisService } from "../../services/chassis/chassis.service";
++// [end-chassis-code]
+ 
+ @Component({
+    selector: "main-view",
+@@ -16,10 +20,10 @@ import { ChassisService } from "../../services/chassis/chassis.service";
+    templateUrl: "./main.component.html",
+ })
+ export class MainComponent implements OnInit, OnDestroy {
+-   chassisList: Chassis[];
+-   selectedChassis: Chassis;
+-   currentTabId: string;
++   chassisList: Chassis[];  // [removable-chassis-line]
++   currentTab: string;
+    echoMsg: string;
++   updateTime: string;
+    webPlatform: WebPlatform;
+    @Input() echoModalOpened = false;
+    private echoSubscription: Subscription;
+@@ -32,18 +36,20 @@ export class MainComponent implements OnInit, OnDestroy {
+    // circular dependencies problems in main.component.spec.ts test, else we get this error:
+    //   "Failed: Can't resolve all parameters for MainComponent: ([object Object], ?, [object Object], ...)"
+    constructor(public gs: GlobalsService,
+-               @Inject(forwardRef(() => ChassisService)) private chassisService: ChassisService,
++               @Inject(forwardRef(() => ChassisService)) private chassisService: ChassisService,  // [removable-chassis-line]
+                @Inject(forwardRef(() => EchoService)) private echoService: EchoService,
+                private appAlertService: AppAlertService,
+                @Inject(forwardRef(() => NavService)) public nav: NavService,
+                private refreshService: RefreshService,
+-               public  i18n: I18nService) {
++               private userSettingService: UserSettingService,
++               public  i18n: I18nService,
++               private changeDetector: ChangeDetectorRef) {
+ 
+       this.webPlatform = this.gs.getWebPlatform();
+ 
+       // Subscribe to refreshService to handle the global refresh action
+       this.refreshSubscription = refreshService.refreshObservable$.subscribe(
+-            () => this.refreshPage());
++            () => this.refreshView());
+    }
+ 
+    sendEcho(useLocalPopup: boolean): void {
+@@ -99,7 +105,6 @@ export class MainComponent implements OnInit, OnDestroy {
+       this.nav.showObjectView(chassis.id, "chassis", "summary");
+    }
+ 
+-   // [removable-chassis-code]
+    editChassis(chassis: Chassis = null): void {
+       const addingChassis: boolean = (chassis === null);
+       const title = addingChassis ? this.i18n.translate("chassis.createAction") :
+@@ -115,7 +120,6 @@ export class MainComponent implements OnInit, OnDestroy {
+       }
+    }
+ 
+-   // [removable-chassis-code]
+    deleteChassis(chassis: Chassis): void {
+       if (this.gs.isPluginMode()) {
+          // TODO make delete work in this mode
+@@ -127,13 +131,35 @@ export class MainComponent implements OnInit, OnDestroy {
+                });
+       }
+    }
++   // [end-chassis-code]
++
++   isActiveTab(id: string): boolean {
++      return (id === this.currentTab);
++   }
++
++   setActiveTab(id: string, inRefreshView: boolean = false): void {
++      this.currentTab = id;
++
++      if (this.currentTab === 'homeTab') {
++         // Timestamp to show how the home view is refreshed through the RefreshService.
++         this.updateTime = new Date().toLocaleTimeString();
++      }
++
++      // Reload the view data for tabs who need it  [removable-chassis-code]
++      if (this.currentTab === 'chassisTab') {
++         this.getChassisList();
++      }
++      // [end-chassis-code]
++   }
+ 
+    onTabSelected(event: TabLink) {
+-      this.currentTabId = event.id;
++      this.appAlertService.closeAlert();
++      this.setActiveTab(event.id);
++      this.userSettingService.setSetting("mainTab", event.id);
+    }
+ 
+    ngOnInit(): void {
+-      this.getChassisList();
++      this.initCurrentTabView();
+    }
+ 
+    ngOnDestroy(): void {
+@@ -143,17 +169,29 @@ export class MainComponent implements OnInit, OnDestroy {
+       }
+    }
+ 
+-   private refreshPage(): void {
+-      this.getChassisList();
++   private refreshView(): void {
++      this.initCurrentTabView(true);
++   }
++
++   private initCurrentTabView(inRefreshView: boolean = false): void {
++      let savedTab: string = this.userSettingService.getSetting("mainTab");
++      if (savedTab !== "echoTab" && savedTab !== "chassisTab") {
++         savedTab = "homeTab";
++      }
++      this.setActiveTab(savedTab, inRefreshView);
+    }
+ 
+    // [removable-chassis-code]
+-   private getChassisList(): void {
++   private getChassisList(inRefreshView: boolean = false): void {
+       this.chassisService.getChassisList(true)
+             .then(chassisList => {
+                this.chassisList = chassisList;
+-               // this.resetSelected();
++               if (inRefreshView) {
++                  // This is necessary to refresh the DOM when coming from a Refresh event
++                  this.changeDetector.detectChanges();
++               }
+             })
+             .catch(errorMsg => this.appAlertService.showError(errorMsg));
+    }
++   // [end-chassis-code]
+ }
+
+diff --git a/seed-ui/src/app/views/summary/summary.component.scss b/seed-ui/src/app/views/summary/summary.component.scss
+index d0c2185..e69de29 100644
+--- a/seed-ui/src/app/views/summary/summary.component.scss
++++ b/seed-ui/src/app/views/summary/summary.component.scss
+@@ -1,4 +0,0 @@
+-.dev-ui {
+-  padding-top: 10px;
+-  opacity: 0.6;
+-}
+

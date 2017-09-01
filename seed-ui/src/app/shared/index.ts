@@ -3,6 +3,7 @@ export * from "./app-alert.service";
 export * from "./app-config";
 export * from "./globals.service";
 export * from "./refresh.service";
+export * from "./http-request.service";
 export * from "./i18n.service";
 export * from "./dev/app-header.component";
 export * from "./dev/dialog-box.component";

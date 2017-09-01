@@ -8,10 +8,10 @@ import { ClarityModule } from "clarity-angular";
 
 import { AppRoutingModule, routedComponents } from "./app-routing.module";
 
-import { EchoService, HostService, NavService }  from "./services/index";
+import { EchoService, HostService, NavService, USerLoginService }  from "./services/index";
 import { Globals } from "./shared/globals.service";
 import { GlobalsService, I18nService,
-         AppAlertService, RefreshService }   from "./shared/index";
+         AppAlertService, RefreshService, HttpRequestService }   from "./shared/index";
 import { ActionDevService }   from "./services/testing/action-dev.service";
 import { DialogBoxComponent } from "./shared/dev/dialog-box.component";
 import { DynamicDialogComponent }   from "./shared/dev/dynamic-dialog.component";
@@ -59,7 +59,9 @@ import { UserSettingService } from "app/shared/user-settings.service";
       HostService,
       I18nService,
       NavService,
+      USerLoginService,
       RefreshService,
+      HttpRequestService,
       UserSettingService,
       {provide: ErrorHandler, useClass: AppErrorHandler}],
    bootstrap: [AppComponent]

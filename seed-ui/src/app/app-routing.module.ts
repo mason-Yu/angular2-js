@@ -12,7 +12,7 @@ import { NYIComponent } from "./views/not-implemented-yet/nyi.component";
 // [removable-chassis-code]
 import { EditChassisComponent } from "./views/modals/edit-chassis.component";
 import { ChassisSummaryComponent } from "./views/chassis-summary/chassis-summary.component";
-import { userLoginComponent } from "./views/user/user-login.component";
+import { userLoginComponent } from "./views/user-login/user-login.component";
 // [end-chassis-code]
 
 /**

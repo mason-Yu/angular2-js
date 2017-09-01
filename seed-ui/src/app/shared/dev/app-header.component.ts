@@ -46,13 +46,13 @@ export class AppHeaderComponent implements OnInit {
    goHome(): void {
       // Here we could use direct navigation, i.e. this.router.navigate(["/"]), since this is only
       // for dev mode, but it is better to re-use the common NavService for consistency and test.
-      this.nav.showMainView();
+      this.nav.showView("mainView");
    }
 
    settings(): void {
       // Here we could use direct navigation, i.e. this.router.navigate(["/settings"]), since this is only
       // for dev mode, but it is better to re-use the common NavService for consistency and test.
-      this.nav.showSettingsView();
+      this.nav.showView("settingsView");
    }
 
    refresh(): void {
