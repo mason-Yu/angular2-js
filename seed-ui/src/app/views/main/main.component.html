@@ -1,14 +1,16 @@
-<app-alert></app-alert>
-
-<!-- Dev mode header -->
-<app-header *ngIf="gs.showDevUI()" ></app-header>
-
-<!-- ---------------------------- Main view content -------------------------------- -->
-
 <div class="main-container">
+    <!-- App Level Alert -->
+    <app-alert></app-alert>
 
-   <div class="content-container">
-      <clr-tabs style="width: 100%" (clrTabsCurrentTabLinkChanged)="onTabSelected($event)">
+    <!-- Dev mode header -->
+    <app-header *ngIf="gs.showDevUI()"></app-header>
+
+    <div class="content-container">
+    <!--<div class="content-container">-->
+        <!-- Dev mode sidenav to facilitate object navigation -->
+        <!--<sidenav *ngIf="gs.showSidenav()" style="order: -1;"></sidenav>-->
+
+        <clr-tabs style="width: 100%" (clrTabsCurrentTabLinkChanged)="onTabSelected($event)">
          <clr-tab-link [clrTabLinkId]="'homeTab'" [clrTabLinkActive]="isActiveTab('homeTab')" style="padding-left: 10px;">
             Home</clr-tab-link>
          <clr-tab-link [clrTabLinkId]="'echoTab'" [clrTabLinkActive]="isActiveTab('echoTab')">
@@ -109,30 +111,6 @@
          </clr-tab-content>
          <!-- [end-chassis-code] -->
       </clr-tabs>
-      <!-- Dev mode sidenav to facilitate object navigation -->
-      <sidenav *ngIf="gs.showSidenav()" style="order:-1"></sidenav>
-
-   </div>
+        <!-- END content-area -->
+    </div>
 </div>
-
-<!--
-   Modal dialog for the echoService response. Two implementations are provided below:
-   1) The first one with <dialog-box> creates a real modal dialog in the vSphere Client
-   2) The second one with <crl-modal> creates a popup modal only within the plugin view.
-   => You must choose between having a client-wide modal dialog with limited API
-      and a simple local popup for small or static content (such as this echo response)
-   => Note that in dev mode both dialogs look the same.
--->
-<dialog-box *ngIf="!gs.isPluginMode()"></dialog-box>
-
-<clr-modal [(clrModalOpen)]="echoModalOpened" [clrModalSize]="'sm'" [clrModalStaticBackdrop]="true">
-   <h3 class="modal-title">{{i18n.translate("mainView.echoResponse")}}</h3>
-   <div class="modal-body">
-      <p>{{echoMsg}}</p>
-      <p>{{i18n.translate("mainView.popup1.text")}}</p>
-   </div>
-   <div class="modal-footer">
-      <button type="submit" class="btn btn-primary" (click)="onSubmitEcho()">{{i18n.translate("button.ok")}}</button>
-   </div>
-</clr-modal>
-

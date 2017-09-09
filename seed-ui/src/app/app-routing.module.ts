@@ -27,8 +27,6 @@ const appRoutes: Routes = [
    { path: "index.html", component: AppRoutingComponent },
 
    // ----- Routes for dev mode and for internal routing -----
-
-   { path: "", redirectTo: "/main", pathMatch: "full" },
    { path: "main",         component: MainComponent },
 
    // settings is an example of lazy loaded module
@@ -54,6 +52,7 @@ const appRoutes: Routes = [
    // [end-chassis-code]
 
    //[user-model]
+   { path: "", redirectTo: "/user-login", pathMatch: "full" },
    { path: "user-login",   component: userLoginComponent }
 
 

@@ -1,9 +1,9 @@
 <!-- Standard app header for dev mode only -->
-<header class="header header-4">
+<header class="header header-2">
    <div class="branding">
       <a class="nav-link  nav-icon" href="javascript://">
-         <clr-icon shape="vm-bug" size="32" class="is-inverse"></clr-icon>
-         <span class="title">{{pluginName}} (dev mode)</span>
+         <span class="title logo-flag"></span>
+         <span class="font_sty">{{pluginName}}</span>
       </a>
    </div>
    <div class="header-nav">
@@ -17,40 +17,17 @@
       <a class="nav-link nav-icon" href="javascript://" (click)="settings()">
          <clr-icon shape="settings" size="24"></clr-icon>
       </a>
-      <!-- Same Refresh and Settings buttons with tooltips
-      <a class="nav-link nav-icon tooltip tooltip-sm tooltip-bottom-left" href="javascript://" (click)="refresh()"
-         role="tooltip" aria-haspopup="true">
-         <clr-icon shape="refresh" size="24"></clr-icon>
-         <span class="tooltip-content">Refresh view</span>
-      </a>
-      <a class="nav-link nav-icon tooltip tooltip-sm tooltip-bottom-left" href="javascript://" (click)="settings()"
-         role="tooltip" aria-haspopup="true">
-         <clr-icon shape="settings" size="24"></clr-icon>
-         <span class="tooltip-content">Go to Settings</span>
-      </a>
-      -->
+      
 
    </div>
    <div class="header-nav toggle">
-      <div class="toggle-switch">
-         <input type="checkbox" id="liveData" (click)="toggleLiveData()" [checked]="gs.useLiveData()">
-         <label for="liveData">Live data</label>
-      </div>
-      <div class="toggle-switch">
-         <input type="checkbox" id="useSidenav" (click)="toggleSidenav()" [checked]="gs.showSidenav()">
-         <label for="useSidenav">Side nav</label>
-      </div>
-      <div class="toggle-switch">
-         <input type="checkbox" id="viewInfo" (click)="toggleViewInfo()" [checked]="gs.showViewInfo()">
-         <label for="viewInfo">View info</label>
-      </div>
    </div>
-   <div class="header-actions" style="font-size: 12px; padding-right:5px">
+   <!--<div class="header-actions" style="font-size: 12px; padding-right:5px">-->
          <!-- Two buttons on the right side to switch between English and French translations -->
-         <a class="us-flag" [style.opacity]="isFrench ? 0.7 : 1" (click)="setLocale('en')" href="javascript://"></a>
+         <!--<a class="us-flag" [style.opacity]="isFrench ? 0.7 : 1" (click)="setLocale('en')" href="javascript://"></a>
          <a class="fr-flag" [style.opacity]="isFrench ? 1 : 0.7" (click)="setLocale('fr')" href="javascript://"></a>
          <span style="display: inline-flex; align-items: center;">v{{version}}</span>
-   </div>
+   </div>-->
 </header>
 
 <!-- optional view extension info -->

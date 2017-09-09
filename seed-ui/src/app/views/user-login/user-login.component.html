@@ -1,34 +1,43 @@
-<div class="login-wrapper">
-    <form class="login">
-        <label class="title">
-            <h3 class="welcome">Welcome to</h3>
-            Company Product Name
-            <h5 class="hint">Use your Company ID to sign in or create one now</h5>
-        </label>
-        <div class="login-group">
-            <input class="username"
-                     type="text"
-                     id="login_username"
-                     name ="userName"
-                     [(ngModel)]="formData.userName"
-                     placeholder="userName">
-            <input class="password"
-                     type="password"
-                     id="login_password"
-                     name="password"
-                     [(ngModel)]="formData.password"
-                     placeholder="password">
-            <div class="checkbox">
-                <input type="checkbox" id="rememberme">
-                <label for="rememberme">
-                    Remember me
-                </label>
+
+<div style="background:url(./assets/images/home_p4.png) no-repeat;
+    width:100%;
+    height:100vh;
+    background-size:cover;">
+    
+    <div id="login_frame">  
+        <div style="height: 104px;width: 100%;">
+            <div  id="image_logo" style="background:url(./assets/images/logo4.png) no-repeat;
+                    width:91px;
+                    height:91px;
+                    background-size:cover;">
             </div>
-            <div class="error active" *ngIf="errorMsg != ''">
-                {{errorMsg}}
-            </div>
-            <button type="submit" class="btn btn-primary" (click)="login()">NEXT</button>
-            <a href="http://www.baidu.com" class="signup">Sign up for a Company ID</a>
+            <span class="font_sty">Snails Travel</span>
         </div>
-    </form>
+        <!--<img id="image_logo" style="background:url(./assets/images/logo4.png);">-->
+        <!--<span class="font_left">Travel</span>-->
+        <div class="error-position">
+            {{errorMsg}}
+        </div>
+        <form>  
+            <p>
+                <label class="label_input">用户名</label><input type="text" id="username" 
+                            style="background-color: whitesmoke"
+                            name ="userName"
+                            [(ngModel)]="formData.userName"
+                            class="text_field"/>
+            </p>  
+            <p>
+                <label class="label_input">密码</label><input type="password" id="password" 
+                            style="background-color: whitesmoke" 
+                            name="password"
+                            [(ngModel)]="formData.password"
+                            class="text_field"/>
+            </p>  
+            <div id="login_control">  
+                <input type="button" class="btn_home" id="btn_login" value="登录" (click)="login()"/>  
+                <input type="button" class="btn_home" id="btn_register" value="注册" (click)="register()"/>
+            </div> 
+            <div class="forget_pwd"><a class="a_link" href="forget_pwd.html">忘记密码？</a></div>
+        </form>  
+    </div>  
 </div>

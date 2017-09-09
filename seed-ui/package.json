@@ -1,5 +1,5 @@
 {
-  "name": "__pluginName__",
+  "name": "snails_travel",
   "version": "0.9.7",
   "description": "HTML Client plugin using Angular2-Clarity stack",
   "angular-cli": {},

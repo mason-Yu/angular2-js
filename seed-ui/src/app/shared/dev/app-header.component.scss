@@ -41,3 +41,23 @@
   margin-top: 25px;
   margin-right: 20px;
 }
+
+.logo-flag {
+  background-image: url(../../../assets/images/logo6.png);
+  background-position: 0px 0px;
+  width: 43px;
+  height: 43px;
+  display: inline-block;
+  background-size: cover;
+  margin-right: 10px;
+}
+
+.font_sty {
+    font-size: 23px;
+    font-weight: 400;
+    font-family: 宋体;
+    letter-spacing: .02em;
+    color: rgba(164, 203, 242, 0.91);
+    line-height: 60px;
+    text-decoration: none;
+}

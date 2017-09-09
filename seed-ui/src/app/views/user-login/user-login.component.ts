@@ -23,13 +23,11 @@ export class userLoginComponent implements OnInit {
      
    }
 
-
-   
    ngOnInit(): void {
       
    }
 
-   login(){
+   login() {
        if (this.checkCredentials()) {
              this.userLogin.login(this.formData.userName, this.formData.password)
                 .subscribe(
@@ -43,13 +41,18 @@ export class userLoginComponent implements OnInit {
        }
    }
 
+   register() {
+
+
+   }
+
    checkCredentials(): boolean {
         if (this.formData.userName === '') {
-            this.errorMsg = "please input userName";
+            this.errorMsg = "请输入用户名";
             return false;
         }
         if (this.formData.password === '') {
-            this.errorMsg = "please input passowrd";
+            this.errorMsg = "请输入密码";
             return false;
         } 
         this.errorMsg = "";

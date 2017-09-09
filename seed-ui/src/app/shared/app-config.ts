@@ -22,13 +22,13 @@ export const APP_CONFIG: AppConfig = {
    // Names used during the plugin generation:
    // - You can change these values at a later time and they will be used by all .ts and .html code.
    // - However a manual update will be required for webapp/plugin.xml, locales/*.properties and MANIFEST.MF
-   pluginName: "__pluginName__",
-   bundleName: "__bundleName__",
-   packageName: "__packageName__",
+   pluginName: "蜗牛旅行",
+   bundleName: "snails_travel",
+   packageName: "snails_travel",
 
    // Version number displayed in the top right corner of the app-header component.
    // Initially it is the version of plugin-seed itself, you may change it to your own plugin version.
-   version: "0.9.7",
+   version: "1.0",
 
    // List of properties for the Host monitor view
    hostProperties: ["name", "overallStatus", "hardware.systemInfo.model", "vm"],

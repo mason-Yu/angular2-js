@@ -10,7 +10,7 @@
             "outDir": "dist",
             "assets": [
                 "assets",
-                "favicon.ico"
+                "snail.ico"
             ],
             "index": "index.html",
             "main": "main.ts",
